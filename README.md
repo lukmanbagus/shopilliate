@@ -59,13 +59,19 @@ npm install
 npm run setup
 ```
 
-The setup script will:
+The setup is interactive. It first asks how to prepare Cloudflare resources:
 
-1. Verify your Cloudflare login (running `wrangler login` if needed).
-2. Create the D1 database `shopilliate-db` and the R2 bucket `shopilliate-images` if they do not exist.
-3. Write the database ID into `wrangler.jsonc`.
-4. Build the frontend and deploy the Worker.
-5. Print the deployed URL.
+- **Create new resources** — creates the D1 database `shopilliate-db` and the R2 bucket `shopilliate-images` if they do not exist.
+- **Use an existing deployment** — lists the D1 databases and R2 buckets already in your account, lets you pick them, and asks for the Worker name so the deploy updates the existing Worker.
+
+In both cases it then writes the resource names and database ID into `wrangler.jsonc`, builds the frontend, deploys the Worker, and prints the deployed URL.
+
+For non-interactive automation:
+
+```bash
+npm run setup -- --new
+npm run setup -- --existing --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
+```
 
 To protect the setup page with a secret:
 
@@ -166,7 +172,7 @@ tests/                    Unit tests
 | `npm run build` | Build the frontend for production |
 | `npm run deploy` | Deploy the Worker with Wrangler |
 | `npm run publish` | Build and deploy in one step |
-| `npm run setup` | Interactive Cloudflare setup and deploy |
+| `npm run setup` | Interactive Cloudflare setup and deploy (new or existing resources) |
 | `npm run reset-password` | Reset the admin password |
 | `npm test` | Run the unit tests |
 | `npm run typecheck` | Type-check the Worker and web app |

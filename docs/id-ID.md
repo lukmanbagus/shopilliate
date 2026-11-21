@@ -59,13 +59,25 @@ npm install
 npm run setup
 ```
 
-Skrip setup akan:
+Setup bersifat interaktif. Pertama, Anda memilih cara menyiapkan resource Cloudflare:
 
-1. Memeriksa login Cloudflare (menjalankan `wrangler login` bila perlu).
-2. Membuat database D1 `shopilliate-db` dan bucket R2 `shopilliate-images` bila belum ada.
-3. Menulis ID database ke `wrangler.jsonc`.
-4. Membangun frontend dan mendeploy Worker.
-5. Mencetak URL hasil deploy.
+- **Buat resource baru** — membuat database D1 `shopilliate-db` dan bucket R2 `shopilliate-images` bila belum ada.
+- **Gunakan deployment yang sudah ada** — menampilkan daftar database D1 dan bucket R2 di akun Anda, meminta Anda memilih, lalu menanyakan nama Worker agar deploy memperbarui Worker yang sudah ada.
+
+Setelah itu skrip menulis nama resource dan ID database ke `wrangler.jsonc`, membangun frontend, mendeploy Worker, dan mencetak URL hasil deploy.
+
+Untuk otomatisasi tanpa interaksi:
+
+```bash
+npm run setup -- --new
+npm run setup -- --existing --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
+```
+
+Untuk melihat bantuan dan opsi:
+
+```bash
+npm run setup -- --help
+```
 
 Untuk melindungi halaman setup dengan secret:
 
@@ -166,7 +178,7 @@ tests/                    Uji unit
 | `npm run build` | Bangun frontend untuk produksi |
 | `npm run deploy` | Deploy Worker dengan Wrangler |
 | `npm run publish` | Bangun dan deploy dalam satu langkah |
-| `npm run setup` | Setup Cloudflare interaktif dan deploy |
+| `npm run setup` | Setup Cloudflare interaktif dan deploy (resource baru atau yang sudah ada) |
 | `npm run reset-password` | Atur ulang password admin |
 | `npm test` | Jalankan uji unit |
 | `npm run typecheck` | Periksa tipe Worker dan aplikasi web |
