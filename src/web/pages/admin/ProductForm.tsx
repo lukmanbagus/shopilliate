@@ -212,7 +212,7 @@ export default function ProductForm() {
             type="button"
             onClick={handleFetch}
             disabled={fetching}
-            className="border-primary text-primary min-h-11 shrink-0 rounded-lg border px-4 text-sm font-bold hover:bg-primary-soft disabled:opacity-60"
+            className="border-primary text-primary-text min-h-11 shrink-0 rounded-lg border px-4 text-sm font-bold hover:bg-primary-soft disabled:opacity-60"
           >
             {fetching ? t('Mengambil…') : t('Ambil Data')}
           </button>
@@ -387,7 +387,7 @@ export default function ProductForm() {
           <button
             type="submit"
             disabled={saving || uploading}
-            className="bg-primary min-h-11 rounded-lg px-5 text-sm font-bold text-white hover:opacity-90 disabled:opacity-60"
+            className="bg-primary min-h-11 rounded-lg px-5 text-sm font-bold text-on-primary hover:opacity-90 disabled:opacity-60"
           >
             {saving ? t('Menyimpan…') : t('Simpan')}
           </button>

@@ -56,6 +56,7 @@ export interface PublicSettings {
   heroDescription: string
   affiliateDisclosure: string
   language: 'en' | 'id'
+  themeColor: string
 }
 
 export interface PublicHomeData {
@@ -96,6 +97,7 @@ export interface AdminSettings {
   shopeeAppId: string
   hasShopeeSecret: boolean
   language: 'en' | 'id'
+  themeColor: string
 }
 
 export interface UpdateInfo {

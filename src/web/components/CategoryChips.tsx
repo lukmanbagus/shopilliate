@@ -14,7 +14,7 @@ export default function CategoryChips({
   const chip = (active: boolean) =>
     `flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold transition ${
       active
-        ? 'bg-primary-soft text-[#8f2a0c]'
+        ? 'bg-primary-soft text-primary-ink'
         : 'text-muted hover:bg-page hover:text-ink'
     }`
 

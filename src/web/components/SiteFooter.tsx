@@ -27,7 +27,7 @@ export function SiteFooter({
             href="https://lukmanbagus.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold hover:text-primary"
+            className="font-semibold hover:text-primary-text"
           >
             {t('Dibuat oleh')} Lukman Bagus
           </a>

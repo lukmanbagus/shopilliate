@@ -25,6 +25,7 @@ import {
   isUpdateAvailable,
   normalizeVersion,
 } from '../../shared/version'
+import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
 
 export const adminRoutes = new Hono<AppEnv>()
 
@@ -680,6 +681,7 @@ const settingsInput = z.object({
   shopeeAppSecret: z.string().max(200, 'Secret maksimal 200 karakter.').optional(),
   clearShopeeCredentials: z.boolean().optional(),
   language: z.enum(['en', 'id']).optional(),
+  themeColor: z.string().trim().max(20, 'Warna tidak valid.').optional(),
 })
 
 const SETTING_KEYS: Record<string, string> = {
@@ -705,6 +707,10 @@ adminRoutes.get('/settings', async (c) => {
       shopeeAppId: (await getSetting(c.env.DB, 'shopee_app_id')) ?? '',
       hasShopeeSecret: Boolean(secret),
       language: normalizeLanguage(await getSetting(c.env.DB, 'language')),
+      themeColor:
+        normalizeHexColor(
+          (await getSetting(c.env.DB, 'theme_color')) ?? DEFAULT_THEME_COLOR,
+        ) ?? DEFAULT_THEME_COLOR,
     },
   })
 })
@@ -716,11 +722,23 @@ adminRoutes.patch('/settings', async (c) => {
   }
   const input = parsed.data
 
+  let themeColorValue = null
+  if (input.themeColor !== undefined) {
+    themeColorValue = normalizeHexColor(input.themeColor)
+    if (!themeColorValue) {
+      return apiError(c, 'VALIDATION', 'Warna tidak valid.', 400)
+    }
+  }
+
   for (const [inputKey, settingKey] of Object.entries(SETTING_KEYS)) {
     const value = (input as Record<string, unknown>)[inputKey]
     if (typeof value === 'string') {
       await setSetting(c.env.DB, settingKey, value)
     }
+  }
+
+  if (themeColorValue) {
+    await setSetting(c.env.DB, 'theme_color', themeColorValue)
   }
 
   if (input.clearShopeeCredentials) {

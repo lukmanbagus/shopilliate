@@ -73,7 +73,7 @@ export default function Dashboard() {
         </div>
         <Link
           to="/admin/produk/baru"
-          className="bg-primary flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-white hover:opacity-90"
+          className="bg-primary flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-on-primary hover:opacity-90"
         >
           {t('Tambah Produk')}
         </Link>
@@ -86,7 +86,7 @@ export default function Dashboard() {
             className="border-line rounded-xl border bg-card p-4"
           >
             <p className="text-muted text-sm font-medium">{card.label}</p>
-            <p className="text-primary mt-1 text-3xl font-extrabold">
+            <p className="text-primary-text mt-1 text-3xl font-extrabold">
               {card.value}
             </p>
           </div>
@@ -98,7 +98,7 @@ export default function Dashboard() {
           <h2 className="font-bold">{t('5 produk terklik')}</h2>
           <Link
             to="/admin/produk"
-            className="text-primary text-sm font-semibold"
+            className="text-primary-text text-sm font-semibold"
           >
             {t('Kelola produk')}
           </Link>

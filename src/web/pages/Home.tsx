@@ -49,7 +49,7 @@ export default function Home() {
                       className="border-line h-14 w-14 shrink-0 rounded-lg border object-cover"
                     />
                   ) : (
-                    <span className="bg-primary-soft text-primary flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-lg font-extrabold">
+                    <span className="bg-primary-soft text-primary-ink flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-lg font-extrabold">
                       {category.name.charAt(0).toUpperCase()}
                     </span>
                   )}

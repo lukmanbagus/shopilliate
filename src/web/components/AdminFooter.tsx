@@ -39,7 +39,7 @@ export default function AdminFooter() {
 
         {info?.updateAvailable && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="bg-primary-soft rounded-full px-2.5 py-1 text-[11px] font-bold text-[#8f2a0c]">
+            <span className="bg-primary-soft rounded-full px-2.5 py-1 text-[11px] font-bold text-primary-ink">
               {t('Pembaruan tersedia: v{version}', {
                 version: info.latestVersion,
               })}
@@ -49,7 +49,7 @@ export default function AdminFooter() {
                 href={info.releaseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold hover:text-primary"
+                className="font-semibold hover:text-primary-text"
               >
                 {t('Catatan rilis')}
               </a>

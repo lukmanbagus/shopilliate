@@ -55,7 +55,7 @@ export default function PublicLayout() {
         <p className="text-muted text-sm">{error}</p>
         <button
           onClick={() => setAttempt((value) => value + 1)}
-          className="bg-primary mt-2 min-h-11 rounded-lg px-5 text-sm font-bold text-white"
+          className="bg-primary mt-2 min-h-11 rounded-lg px-5 text-sm font-bold text-on-primary"
         >
           {t('Coba lagi')}
         </button>
@@ -80,7 +80,7 @@ export default function PublicLayout() {
     <SiteContext.Provider value={home}>
       <div className="flex min-h-screen flex-col">
         {settings.bannerText && (
-          <p className="bg-primary-soft text-[11px] font-semibold tracking-wide text-[#7a2411]">
+          <p className="bg-primary-soft text-[11px] font-semibold tracking-wide text-primary-ink">
             <span className="mx-auto block max-w-6xl px-4 py-1.5 text-center">
               {settings.bannerText}
             </span>

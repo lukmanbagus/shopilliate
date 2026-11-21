@@ -234,7 +234,7 @@ export default function Categories() {
             <button
               type="submit"
               disabled={saving || uploading}
-              className="bg-primary min-h-11 rounded-lg px-4 text-sm font-bold text-white disabled:opacity-60"
+              className="bg-primary min-h-11 rounded-lg px-4 text-sm font-bold text-on-primary disabled:opacity-60"
             >
               {saving ? t('Menyimpan…') : t('Simpan')}
             </button>

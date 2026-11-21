@@ -18,6 +18,7 @@ Semua berjalan pada satu Cloudflare Worker: API (`/api/*`), gambar (`/img/*`), d
 - Gambar disimpan di Cloudflare R2 dan disajikan dari domain Anda sendiri.
 - Wizard setup pertama dengan pembuatan akun admin yang atomik dan `SETUP_TOKEN` opsional.
 - Bahasa Inggris sebagai default, dengan Bahasa Indonesia tersedia di Pengaturan.
+- Tema satu warna: pilih satu warna aksen dan seluruh turunannya dibuat otomatis.
 - Skema database dibuat otomatis: tidak perlu migrasi manual.
 
 ## Stack
@@ -118,6 +119,8 @@ Antarmuka default memakai **English**. Ganti ke **Bahasa Indonesia** di **Admin 
 ### Pengaturan etalase
 
 Nama situs, teks banner atas, judul dan deskripsi hero, pernyataan afiliasi, kategori, subkategori, dan detail produk (termasuk badge TOP) semuanya dapat diubah dari panel admin.
+
+**Warna tema:** pilih satu warna di **Admin → Pengaturan → Warna tema**. Shopilliate membuat otomatis warna hover, latar lembut, teks, dan kontras, sehingga etalase dan panel admin tetap konsisten tanpa perlu memilih banyak warna.
 
 ## Atur ulang password yang lupa
 

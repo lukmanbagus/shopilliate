@@ -20,13 +20,18 @@ import {
   normalizeLanguage,
   type Language,
 } from '../shared/i18n'
+import {
+  applyThemeColor,
+  DEFAULT_THEME_COLOR,
+  normalizeHexColor,
+} from '../shared/theme'
 
 function Placeholder({ title }: { title: string }) {
   const { t } = useLanguage()
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-3 px-6 text-center">
       <h1 className="text-3xl font-extrabold tracking-tight">
-        Shopi<span className="text-primary">lliate</span>
+        Shopi<span className="text-primary-text">lliate</span>
       </h1>
       <p className="text-muted text-sm">{t(title)}</p>
     </main>
@@ -50,7 +55,7 @@ function FullScreenMessage({
       {onRetry && (
         <button
           onClick={onRetry}
-          className="bg-primary mt-2 min-h-11 rounded-lg px-5 text-sm font-bold text-white"
+          className="bg-primary mt-2 min-h-11 rounded-lg px-5 text-sm font-bold text-on-primary"
         >
           {t('Coba lagi')}
         </button>
@@ -65,6 +70,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE)
+  const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR)
 
   function changeLanguage(next: Language) {
     const value = normalizeLanguage(next)
@@ -77,6 +83,10 @@ export default function App() {
   }, [language])
 
   useEffect(() => {
+    applyThemeColor(themeColor)
+  }, [themeColor])
+
+  useEffect(() => {
     let active = true
     setStatus(null)
     setError(null)
@@ -86,6 +96,7 @@ export default function App() {
         if (!active) return
         setStatus(data)
         changeLanguage(normalizeLanguage(data.language))
+        setThemeColor(normalizeHexColor(data.themeColor) ?? DEFAULT_THEME_COLOR)
       })
       .catch((err) => {
         if (!active) return

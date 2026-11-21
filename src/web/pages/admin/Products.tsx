@@ -134,7 +134,7 @@ export default function Products() {
         </div>
         <Link
           to="/admin/produk/baru"
-          className="bg-primary flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-white hover:opacity-90"
+          className="bg-primary flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-on-primary hover:opacity-90"
         >
           {t('Tambah Produk')}
         </Link>
@@ -206,7 +206,7 @@ export default function Products() {
             </p>
             <Link
               to="/admin/produk/baru"
-              className="bg-primary mt-4 inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-white"
+              className="bg-primary mt-4 inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-bold text-on-primary"
             >
               {t('Tambah Produk')}
             </Link>
@@ -247,7 +247,7 @@ export default function Products() {
                             {product.title}
                           </p>
                           {product.isTop && (
-                            <span className="bg-primary-soft text-primary mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold">
+                            <span className="bg-primary-soft text-primary-ink mt-1 inline-block rounded px-1.5 py-0.5 text-[10px] font-bold">
                               TOP
                             </span>
                           )}

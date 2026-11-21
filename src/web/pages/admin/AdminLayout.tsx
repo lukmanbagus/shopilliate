@@ -63,7 +63,7 @@ export default function AdminLayout() {
       <header className="border-line border-b bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3">
           <Link to="/admin" className="text-lg font-extrabold tracking-tight">
-            Shopi<span className="text-primary">lliate</span>
+            Shopi<span className="text-primary-text">lliate</span>
             <span className="text-muted ml-2 text-xs font-medium">Admin</span>
           </Link>
           <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export default function AdminLayout() {
               className={({ isActive }) =>
                 `flex min-h-10 shrink-0 items-center rounded-lg px-3 text-sm font-semibold ${
                   isActive
-                    ? 'bg-primary-soft text-primary'
+                    ? 'bg-primary-soft text-primary-ink'
                     : 'text-muted hover:bg-page'
                 }`
               }

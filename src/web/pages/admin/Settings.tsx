@@ -7,6 +7,12 @@ import {
   firstIssueMessage,
 } from '../../../shared/schemas'
 import { LANGUAGES, type Language } from '../../../shared/i18n'
+import {
+  applyThemeColor,
+  DEFAULT_THEME_COLOR,
+  generateTheme,
+  normalizeHexColor,
+} from '../../../shared/theme'
 import type { AdminSettings } from '../../../shared/types'
 
 export default function Settings() {
@@ -21,6 +27,8 @@ export default function Settings() {
   const [shopeeAppSecret, setShopeeAppSecret] = useState('')
   const [clearShopeeCredentials, setClearShopeeCredentials] = useState(false)
   const [formLanguage, setFormLanguage] = useState<Language>('en')
+  const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR)
+  const [themeColorText, setThemeColorText] = useState(DEFAULT_THEME_COLOR)
 
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState<{
@@ -51,6 +59,8 @@ export default function Settings() {
         setAffiliateDisclosure(value.affiliateDisclosure)
         setShopeeAppId(value.shopeeAppId)
         setFormLanguage(value.language)
+        setThemeColor(value.themeColor)
+        setThemeColorText(value.themeColor)
       })
       .catch((err) => {
         if (active) {
@@ -76,6 +86,12 @@ export default function Settings() {
       return
     }
 
+    const normalizedTheme = normalizeHexColor(themeColorText)
+    if (!normalizedTheme) {
+      setNotice({ tone: 'error', text: t('Warna tidak valid.') })
+      return
+    }
+
     setSaving(true)
     try {
       await api.updateSettings({
@@ -86,12 +102,16 @@ export default function Settings() {
         affiliateDisclosure: affiliateDisclosure.trim(),
         shopeeAppId: shopeeAppId.trim(),
         language: formLanguage,
+        themeColor: normalizedTheme,
         ...(shopeeAppSecret ? { shopeeAppSecret } : {}),
         ...(clearShopeeCredentials ? { clearShopeeCredentials: true } : {}),
       })
       setShopeeAppSecret('')
       setClearShopeeCredentials(false)
       setLanguage(formLanguage)
+      setThemeColor(normalizedTheme)
+      setThemeColorText(normalizedTheme)
+      applyThemeColor(normalizedTheme)
       setNotice({ tone: 'ok', text: t('Pengaturan berhasil disimpan.') })
     } catch (err) {
       setNotice({
@@ -148,6 +168,10 @@ export default function Settings() {
     )
   }
 
+  const themePreview = generateTheme(
+    normalizeHexColor(themeColorText) ?? themeColor,
+  )
+
   return (
     <section className="mx-auto max-w-2xl">
       <h1 className="text-xl font-bold">{t('Pengaturan')}</h1>
@@ -191,6 +215,74 @@ export default function Settings() {
         <p className="text-muted mb-4 text-xs">
           {t('Pilih bahasa antarmuka situs.')}
         </p>
+
+        <label className="block text-sm font-semibold" htmlFor="themeColor">
+          {t('Warna tema')}
+        </label>
+        <div className="mt-1 flex items-center gap-2">
+          <input
+            id="themeColor"
+            type="color"
+            value={themeColor}
+            onChange={(event) => {
+              setThemeColor(event.target.value.toUpperCase())
+              setThemeColorText(event.target.value.toUpperCase())
+            }}
+            className="border-line h-11 w-14 cursor-pointer rounded-lg border bg-card p-1"
+          />
+          <input
+            value={themeColorText}
+            onChange={(event) => {
+              setThemeColorText(event.target.value)
+              const normalized = normalizeHexColor(event.target.value)
+              if (normalized) setThemeColor(normalized)
+            }}
+            aria-label={t('Kode warna')}
+            placeholder={DEFAULT_THEME_COLOR}
+            className="border-line focus:border-primary min-h-11 min-w-0 flex-1 rounded-lg border px-3 font-mono text-sm uppercase outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setThemeColor(DEFAULT_THEME_COLOR)
+              setThemeColorText(DEFAULT_THEME_COLOR)
+            }}
+            title={t('Kembalikan ke warna default')}
+            className="border-line min-h-11 shrink-0 rounded-lg border px-3 text-sm font-semibold hover:bg-page"
+          >
+            {t('Default')}
+          </button>
+        </div>
+        <p className="text-muted mt-1 text-xs">
+          {t('Pilih satu warna; warna turunannya dibuat otomatis.')}
+        </p>
+        <div className="mb-4 mt-2 flex items-center gap-2" aria-hidden="true">
+          <span
+            className="border-line h-9 w-9 rounded-full border"
+            style={{ backgroundColor: themePreview.primary }}
+            title={t('Warna utama')}
+          />
+          <span
+            className="border-line h-9 w-9 rounded-full border"
+            style={{ backgroundColor: themePreview.soft }}
+            title={t('Warna lembut')}
+          />
+          <span
+            className="border-line h-9 w-9 rounded-full border"
+            style={{ backgroundColor: themePreview.text }}
+            title={t('Warna teks')}
+          />
+          <span
+            className="border-line flex h-9 w-9 items-center justify-center rounded-full border text-xs font-bold"
+            style={{
+              backgroundColor: themePreview.primary,
+              color: themePreview.onPrimary,
+            }}
+            title={t('Warna teks di atas warna utama')}
+          >
+            Aa
+          </span>
+        </div>
 
         <label className="block text-sm font-semibold" htmlFor="siteName">
           {t('Nama situs')}
@@ -306,7 +398,7 @@ export default function Settings() {
         <button
           type="submit"
           disabled={saving}
-          className="bg-primary mt-5 min-h-11 rounded-lg px-5 text-sm font-bold text-white disabled:opacity-60"
+          className="bg-primary mt-5 min-h-11 rounded-lg px-5 text-sm font-bold text-on-primary disabled:opacity-60"
         >
           {saving ? t('Menyimpan…') : t('Simpan Pengaturan')}
         </button>

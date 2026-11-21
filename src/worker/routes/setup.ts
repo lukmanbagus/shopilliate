@@ -6,16 +6,22 @@ import { isInstalled, getSetting, setSetting } from '../lib/schema'
 import { apiError, readJson } from '../lib/http'
 import { firstIssueMessage, setupInputSchema } from '../../shared/schemas'
 import { normalizeLanguage } from '../../shared/i18n'
+import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
 
 export const setupRoutes = new Hono<{ Bindings: Env }>()
 
 setupRoutes.get('/status', async (c) => {
   const installed = await isInstalled(c.env.DB)
   const language = normalizeLanguage(await getSetting(c.env.DB, 'language'))
+  const themeColor =
+    normalizeHexColor(
+      (await getSetting(c.env.DB, 'theme_color')) ?? DEFAULT_THEME_COLOR,
+    ) ?? DEFAULT_THEME_COLOR
   return c.json({
     installed,
     needsToken: Boolean(c.env.SETUP_TOKEN),
     language,
+    themeColor,
   })
 })
 

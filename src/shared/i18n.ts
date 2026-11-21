@@ -30,6 +30,17 @@ const EN: Record<string, string> = {
   // Status bahasa
   'Bahasa': 'Language',
   'Pilih bahasa antarmuka situs.': 'Choose the site interface language.',
+  'Warna tema': 'Theme color',
+  'Kode warna': 'Color code',
+  'Pilih satu warna; warna turunannya dibuat otomatis.':
+    'Pick one color; matching shades are generated automatically.',
+  'Kembalikan ke warna default': 'Reset to default color',
+  'Warna tidak valid.': 'Invalid color.',
+  'Warna utama': 'Primary color',
+  'Warna lembut': 'Soft color',
+  'Warna teks': 'Text color',
+  'Warna teks di atas warna utama': 'Text color on primary',
+  'Default': 'Default',
 
   // Aplikasi / navigasi
   'Etalase gagal dimuat': 'Failed to load storefront',

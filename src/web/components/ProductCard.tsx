@@ -32,7 +32,7 @@ export default function ProductCard({ product }: { product: PublicProduct }) {
           </div>
         )}
         {product.isTop && (
-          <span className="bg-primary absolute top-2 left-2 rounded-md px-2 py-0.5 text-[11px] font-extrabold text-[#2b0c03] uppercase">
+          <span className="bg-primary absolute top-2 left-2 rounded-md px-2 py-0.5 text-[11px] font-extrabold text-on-primary uppercase">
             TOP
           </span>
         )}
@@ -41,7 +41,7 @@ export default function ProductCard({ product }: { product: PublicProduct }) {
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug font-medium">
           {product.title}
         </h3>
-        <p className="text-primary text-xl font-extrabold tracking-tight">
+        <p className="text-primary-text text-xl font-extrabold tracking-tight">
           {formatRupiah(product.price)}
         </p>
         {product.soldText && (

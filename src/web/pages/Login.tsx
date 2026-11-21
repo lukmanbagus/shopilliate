@@ -42,7 +42,7 @@ export default function Login() {
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 py-10">
       <div className="mb-6 text-center">
         <p className="text-2xl font-extrabold tracking-tight">
-          Shopi<span className="text-primary">lliate</span>
+          Shopi<span className="text-primary-text">lliate</span>
         </p>
         <h1 className="mt-3 text-xl font-bold">{t('Masuk ke panel admin')}</h1>
       </div>
@@ -88,7 +88,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-primary min-h-11 w-full rounded-lg px-4 text-sm font-bold text-white transition hover:opacity-90 disabled:opacity-60"
+          className="bg-primary min-h-11 w-full rounded-lg px-4 text-sm font-bold text-on-primary transition hover:opacity-90 disabled:opacity-60"
         >
           {submitting ? t('Memeriksa…') : t('Masuk')}
         </button>

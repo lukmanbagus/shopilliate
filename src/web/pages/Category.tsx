@@ -90,7 +90,7 @@ export default function CategoryPage() {
         <p className="font-semibold">{error}</p>
         <Link
           to="/"
-          className="text-primary mt-3 inline-block text-sm font-semibold"
+          className="text-primary-text mt-3 inline-block text-sm font-semibold"
         >
           {t('Kembali ke beranda')}
         </Link>
@@ -105,13 +105,13 @@ export default function CategoryPage() {
   return (
     <div>
       <nav aria-label="Breadcrumb" className="text-muted mt-4 flex flex-wrap gap-1.5 text-xs">
-        <Link to="/" className="hover:text-primary">
+        <Link to="/" className="hover:text-primary-text">
           {t('Beranda')}
         </Link>
         {data?.parent && (
           <>
             <span aria-hidden="true">/</span>
-            <Link to={`/k/${data.parent.slug}`} className="hover:text-primary">
+            <Link to={`/k/${data.parent.slug}`} className="hover:text-primary-text">
               {data.parent.name}
             </Link>
           </>
@@ -155,7 +155,7 @@ export default function CategoryPage() {
               className={`flex min-h-10 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold ${
                 category?.parentId
                   ? 'text-muted hover:bg-page'
-                  : 'bg-primary-soft text-[#8f2a0c]'
+                  : 'bg-primary-soft text-primary-ink'
               }`}
             >
               {t('Semua')}
@@ -167,7 +167,7 @@ export default function CategoryPage() {
               to={`/k/${child.slug}`}
               className={`flex min-h-10 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold ${
                 child.slug === slug
-                  ? 'bg-primary-soft text-[#8f2a0c]'
+                  ? 'bg-primary-soft text-primary-ink'
                   : 'text-muted hover:bg-page'
               }`}
             >

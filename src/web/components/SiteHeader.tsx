@@ -33,7 +33,7 @@ export default function SiteHeader({
           aria-label={t('{siteName} — beranda', { siteName })}
         >
           {siteName}
-          <span className="text-primary">.</span>
+          <span className="text-primary-text">.</span>
         </Link>
 
         <form
@@ -55,7 +55,7 @@ export default function SiteHeader({
           <button
             type="submit"
             aria-label={t('Cari')}
-            className="bg-primary flex min-h-11 min-w-11 items-center justify-center rounded-r-full px-4 text-white"
+            className="bg-primary flex min-h-11 min-w-11 items-center justify-center rounded-r-full px-4 text-on-primary"
           >
             <svg
               viewBox="0 0 24 24"
