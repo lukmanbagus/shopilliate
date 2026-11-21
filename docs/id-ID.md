@@ -66,11 +66,13 @@ Setup bersifat interaktif. Pertama, Anda memilih cara menyiapkan resource Cloudf
 
 Setelah itu skrip menulis nama resource dan ID database ke `wrangler.jsonc`, membangun frontend, mendeploy Worker, dan mencetak URL hasil deploy.
 
+Jika login Cloudflare Anda memiliki akses ke beberapa akun, skrip menampilkan daftarnya dan meminta Anda memilih akun. Semua perintah Wrangler kemudian dijalankan dengan akun tersebut secara eksplisit, sehingga daftar dan pembuatan resource selalu berada di akun yang sama.
+
 Untuk otomatisasi tanpa interaksi:
 
 ```bash
-npm run setup -- --new
-npm run setup -- --existing --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
+npm run setup -- --new --account <account-id>
+npm run setup -- --existing --account <account-id> --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
 ```
 
 Untuk melihat bantuan dan opsi:

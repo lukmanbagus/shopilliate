@@ -66,11 +66,13 @@ The setup is interactive. It first asks how to prepare Cloudflare resources:
 
 In both cases it then writes the resource names and database ID into `wrangler.jsonc`, builds the frontend, deploys the Worker, and prints the deployed URL.
 
+If your Cloudflare login has access to multiple accounts, the script lists them and asks which account to use. Every Wrangler command then runs with that account explicitly, so listing and creating resources always target the same account.
+
 For non-interactive automation:
 
 ```bash
-npm run setup -- --new
-npm run setup -- --existing --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
+npm run setup -- --new --account <account-id>
+npm run setup -- --existing --account <account-id> --d1 shopilliate-db --r2 shopilliate-images --worker shopilliate
 ```
 
 To protect the setup page with a secret:
