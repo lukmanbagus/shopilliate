@@ -7,6 +7,7 @@ import type {
   PublicProductList,
   DashboardData,
   AdminSettings,
+  UpdateInfo,
 } from '../../shared/types'
 import type { LoginInput, SetupInput } from '../../shared/schemas'
 import type { Language } from '../../shared/i18n'
@@ -168,6 +169,7 @@ export const api = {
     }),
 
   dashboard: () => request<DashboardData>('/api/admin/dashboard'),
+  updateInfo: () => request<UpdateInfo>('/api/admin/update'),
   settings: () =>
     request<{ settings: AdminSettings }>('/api/admin/settings'),
   updateSettings: (input: Record<string, unknown>) =>

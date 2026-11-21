@@ -256,6 +256,11 @@ const EN: Record<string, string> = {
   'Situs ini memuat tautan afiliasi. Kami dapat menerima komisi dari pembelian melalui tautan tersebut tanpa biaya tambahan untuk Anda.':
     'This site contains affiliate links. We may earn a commission from purchases made through these links at no extra cost to you.',
   'Dibuat oleh': 'Created by',
+  'Pembaruan tersedia: v{version}': 'Update available: v{version}',
+  'Catatan rilis': 'Release notes',
+  'Salin perintah': 'Copy command',
+  'Tersalin': 'Copied',
+  'Terbaru (v{version})': 'Up to date (v{version})',
   '© {year} {siteName}. Harga dapat berubah sewaktu-waktu di Shopee.':
     '© {year} {siteName}. Prices may change at any time on Shopee.',
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api'
 import { useLanguage } from '../../lib/language'
+import AdminFooter from '../../components/AdminFooter'
 
 export default function AdminLayout() {
   const navigate = useNavigate()
@@ -58,7 +59,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <header className="border-line border-b bg-card">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3">
           <Link to="/admin" className="text-lg font-extrabold tracking-tight">
@@ -96,9 +97,10 @@ export default function AdminLayout() {
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-5xl px-5 py-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-6">
         <Outlet />
       </main>
+      <AdminFooter />
     </div>
   )
 }

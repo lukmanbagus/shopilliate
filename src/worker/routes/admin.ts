@@ -14,11 +14,17 @@ import {
 import { lookupShopeeProduct } from '../lib/shopee'
 import { ShopeeError } from '../lib/shopee/resolve'
 import { firstIssueMessage, changePasswordSchema } from '../../shared/schemas'
-import type { Category, Product } from '../../shared/types'
+import type { Category, Product, UpdateInfo } from '../../shared/types'
 import { hashPassword, verifyPassword } from '../lib/password'
 import { getSetting, setSetting } from '../lib/schema'
 import { hashToken, readSessionCookie } from '../lib/session'
 import { normalizeLanguage } from '../../shared/i18n'
+import {
+  APP_VERSION,
+  UPDATE_REPO,
+  isUpdateAvailable,
+  normalizeVersion,
+} from '../../shared/version'
 
 export const adminRoutes = new Hono<AppEnv>()
 
@@ -539,6 +545,74 @@ adminRoutes.post('/upload', async (c) => {
   await putImage(c.env.BUCKET, key, buffer, validation.contentType)
 
   return c.json({ key, url: `/img/${key}` }, 201)
+})
+
+// ---------- Pembaruan aplikasi ----------
+
+const UPDATE_CACHE_MS = 30 * 60 * 1000
+let cachedUpdate: { expiresAt: number; info: UpdateInfo } | null = null
+
+adminRoutes.get('/update', async (c) => {
+  if (cachedUpdate && cachedUpdate.expiresAt > Date.now()) {
+    return c.json(cachedUpdate.info)
+  }
+
+  const base: UpdateInfo = {
+    currentVersion: APP_VERSION,
+    latestVersion: APP_VERSION,
+    updateAvailable: false,
+    checked: false,
+    repository: UPDATE_REPO,
+    releaseUrl: null,
+    publishedAt: null,
+  }
+
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(UPDATE_REPO)) {
+    return c.json(base)
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${UPDATE_REPO}/releases/latest`,
+      {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          'User-Agent': 'shopilliate',
+        },
+        signal: AbortSignal.timeout(5000),
+        cf: { cacheTtl: 1800, cacheEverything: true },
+      },
+    )
+
+    let info = base
+    if (response.ok) {
+      const release = (await response.json()) as {
+        tag_name?: string
+        html_url?: string
+        published_at?: string
+        draft?: boolean
+        prerelease?: boolean
+      }
+      if (release.tag_name && !release.draft && !release.prerelease) {
+        const latestVersion = normalizeVersion(release.tag_name)
+        info = {
+          currentVersion: APP_VERSION,
+          latestVersion,
+          updateAvailable: isUpdateAvailable(APP_VERSION, latestVersion),
+          checked: true,
+          repository: UPDATE_REPO,
+          releaseUrl: release.html_url ?? null,
+          publishedAt: release.published_at ?? null,
+        }
+      }
+    }
+
+    cachedUpdate = { expiresAt: Date.now() + UPDATE_CACHE_MS, info }
+    return c.json(info)
+  } catch {
+    cachedUpdate = { expiresAt: Date.now() + 5 * 60 * 1000, info: base }
+    return c.json(base)
+  }
 })
 
 // ---------- Dashboard ----------

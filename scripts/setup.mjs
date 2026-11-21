@@ -5,19 +5,17 @@
  * - reuse an existing deployment by picking its D1 database and R2 bucket.
  * Then build and deploy the Worker.
  */
-import { spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import readline from 'node:readline/promises'
-import { fileURLToPath } from 'node:url'
-
-const root = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-)
-const isWindows = process.platform === 'win32'
-const npx = isWindows ? 'npx.cmd' : 'npx'
-const npm = isWindows ? 'npm.cmd' : 'npm'
+import {
+  root,
+  fail,
+  ask,
+  ensureAccount,
+  deployWorker,
+  wranglerRun,
+  wranglerCapture,
+} from './lib/cloudflare.mjs'
 
 const D1_NAME = 'shopilliate-db'
 const R2_NAME = 'shopilliate-images'
@@ -25,14 +23,6 @@ const CONFIG_PATH = path.join(root, 'wrangler.jsonc')
 
 const args = process.argv.slice(2)
 const hasFlag = (name) => args.includes(name)
-
-let selectedAccountId
-
-function wranglerEnv() {
-  return selectedAccountId
-    ? { ...process.env, CLOUDFLARE_ACCOUNT_ID: selectedAccountId }
-    : process.env
-}
 
 function optionValue(name) {
   const inline = args.find((arg) => arg.startsWith(`${name}=`))
@@ -69,161 +59,9 @@ that prompt. No credentials are stored; only database IDs and resource names
 are written to wrangler.jsonc.`)
 }
 
-function run(command, commandArgs, env = process.env) {
-  console.log(`\n→ ${command} ${commandArgs.join(' ')}`)
-  const result = spawnSync(command, commandArgs, {
-    cwd: root,
-    stdio: 'inherit',
-    env,
-  })
-  if (result.status !== 0) {
-    throw new Error(`Command failed: ${command} ${commandArgs.join(' ')}`)
-  }
-}
-
-function capture(command, commandArgs, env = process.env) {
-  return spawnSync(command, commandArgs, { cwd: root, encoding: 'utf8', env })
-}
-
-function wranglerRun(commandArgs) {
-  return run(npx, ['wrangler', ...commandArgs], wranglerEnv())
-}
-
-function wranglerCapture(commandArgs) {
-  return capture(npx, ['wrangler', ...commandArgs], wranglerEnv())
-}
-
-function fail(message) {
-  console.error(`\n✖ ${message}`)
-  process.exit(1)
-}
-
-async function ask(question, defaultValue = '') {
-  if (!process.stdin.isTTY) return defaultValue
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  })
-  try {
-    const suffix = defaultValue ? ` [${defaultValue}]` : ''
-    const answer = (await rl.question(`${question}${suffix}: `)).trim()
-    return answer || defaultValue
-  } finally {
-    rl.close()
-  }
-}
-
 function readWorkerName() {
   const config = readFileSync(CONFIG_PATH, 'utf8')
   return config.match(/"name"\s*:\s*"([^"]+)"/)?.[1] ?? 'shopilliate'
-}
-
-function parseAccounts(output) {
-  const accounts = new Map()
-  for (const line of output.split('\n')) {
-    if (!line.includes('│')) continue
-    const cells = line
-      .split('│')
-      .map((cell) => cell.trim())
-      .filter(Boolean)
-    if (cells.length !== 2) continue
-    const [name, id] = cells
-    if (/^account name$/i.test(name) || /^[-─]+$/.test(name)) continue
-    if (!/^[0-9a-f]{32}$/i.test(id)) continue
-    accounts.set(id.toLowerCase(), { name, id })
-  }
-  return [...accounts.values()]
-}
-
-function fetchLoginState() {
-  const result = capture(npx, ['wrangler', 'whoami'])
-  const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`
-  if (
-    result.status !== 0 ||
-    /not (logged|signed) in|not authenticated|please log in/i.test(output)
-  ) {
-    return { loggedIn: false, accounts: [] }
-  }
-  return { loggedIn: true, accounts: parseAccounts(output) }
-}
-
-async function ensureAccount() {
-  console.log('Checking your Cloudflare login…')
-  let state = fetchLoginState()
-  if (!state.loggedIn) {
-    console.log('Not signed in. Opening the Cloudflare login page…')
-    run(npx, ['wrangler', 'login'])
-    state = fetchLoginState()
-    if (!state.loggedIn) fail('Cloudflare login could not be verified.')
-  }
-  console.log('Cloudflare login detected.')
-
-  const requested = optionValue('--account')
-  if (requested) {
-    const match = state.accounts.find(
-      (account) =>
-        account.id.toLowerCase() === requested.toLowerCase() ||
-        account.name.toLowerCase() === requested.toLowerCase(),
-    )
-    if (!match) {
-      fail(`Cloudflare account "${requested}" was not found.`)
-    }
-    selectedAccountId = match.id
-    console.log(`Using Cloudflare account: ${match.name} (${match.id})`)
-    return
-  }
-
-  if (state.accounts.length === 0) {
-    console.log(
-      'Wrangler did not return an account list; using the current Wrangler account.',
-    )
-    return
-  }
-
-  if (state.accounts.length === 1) {
-    selectedAccountId = state.accounts[0].id
-    console.log(
-      `Using Cloudflare account: ${state.accounts[0].name} (${state.accounts[0].id})`,
-    )
-    return
-  }
-
-  console.log('\nMultiple Cloudflare accounts found:')
-  state.accounts.forEach((account, index) => {
-    console.log(`  ${index + 1}. ${account.name} (${account.id})`)
-  })
-
-  if (!process.stdin.isTTY) {
-    fail(
-      'Multiple Cloudflare accounts found. Pass --account <name|id> to choose one.',
-    )
-  }
-
-  while (true) {
-    const answer = await ask('Choose an account', '1')
-    const index = Number(answer)
-    if (
-      Number.isInteger(index) &&
-      index >= 1 &&
-      index <= state.accounts.length
-    ) {
-      const account = state.accounts[index - 1]
-      selectedAccountId = account.id
-      console.log(`Using Cloudflare account: ${account.name} (${account.id})`)
-      return
-    }
-    const match = state.accounts.find(
-      (account) =>
-        account.id.toLowerCase() === answer.toLowerCase() ||
-        account.name.toLowerCase() === answer.toLowerCase(),
-    )
-    if (match) {
-      selectedAccountId = match.id
-      console.log(`Using Cloudflare account: ${match.name} (${match.id})`)
-      return
-    }
-    console.log('Unknown choice. Try again.')
-  }
 }
 
 function listDatabases() {
@@ -355,7 +193,9 @@ async function selectExisting() {
       fail(`Database "${databaseOption}" was not found in this account.`)
     }
   } else if (databases.length === 0) {
-    console.log('No D1 databases found in this account; new resources will be created.')
+    console.log(
+      'No D1 databases found in this account; new resources will be created.',
+    )
     return null
   } else {
     console.log('\nAvailable D1 databases:')
@@ -492,34 +332,6 @@ function ensureR2() {
   return R2_NAME
 }
 
-function deploy() {
-  console.log('\nBuilding the frontend…')
-  run(npm, ['run', 'build'])
-
-  console.log('\nDeploying the Worker…')
-  const result = wranglerCapture(['deploy'])
-  process.stdout.write(result.stdout ?? '')
-  process.stderr.write(result.stderr ?? '')
-  if (result.status !== 0) fail('Deploy failed. Check the Wrangler output above.')
-
-  const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`
-  const url = output.match(/https:\/\/[^\s]+\.workers\.dev/i)?.[0]
-
-  console.log('\n──────────────────────────────────────────')
-  console.log('Done! The Worker has been deployed.')
-  if (url) {
-    console.log(`Open ${url} to finish the admin setup.`)
-  } else {
-    console.log(
-      'Open your Worker URL in the Cloudflare dashboard to finish the admin setup.',
-    )
-  }
-  console.log(
-    'Open that URL right away so nobody else can create the admin account first.',
-  )
-  console.log('──────────────────────────────────────────')
-}
-
 async function main() {
   if (hasFlag('--help') || hasFlag('-h')) {
     printHelp()
@@ -527,16 +339,18 @@ async function main() {
   }
 
   console.log('Shopilliate — Cloudflare setup')
-  await ensureAccount()
+  await ensureAccount(optionValue('--account'))
 
   const mode = await chooseMode()
   if (mode === 'existing') {
     const selection = await selectExisting()
     if (selection) {
-      deploy()
+      deployWorker({ setup: true })
       return
     }
-    console.log('\nNo existing resources selected. Continuing with new resources.')
+    console.log(
+      '\nNo existing resources selected. Continuing with new resources.',
+    )
   }
 
   const database = ensureD1()
@@ -546,7 +360,7 @@ async function main() {
     databaseId: database.id,
     bucketName: bucket,
   })
-  deploy()
+  deployWorker({ setup: true })
 }
 
 main().catch((error) => {

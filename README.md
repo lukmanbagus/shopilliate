@@ -127,13 +127,21 @@ npm run reset-password -- --local
 
 ## Updating
 
+Updates follow GitHub Releases. When a newer release exists, the admin footer shows the new version, a link to the release notes, and the `npm run update` command.
+
 ```bash
-git pull
-npm install
-npm run publish
+npm run update
 ```
 
-`npm run publish` builds the frontend and deploys the Worker. If you use the Deploy to Cloudflare button or Workers Builds, redeploy from the dashboard instead. The database schema updates itself; there are no migrations to run.
+The updater checks the latest GitHub Release and then:
+
+- preserves `wrangler.jsonc` resource configuration, local vars, `.dev.vars`, `.env*` files, and your existing D1/R2 data;
+- backs up `wrangler.jsonc` to `.update-backup/` before replacing files;
+- installs dependencies, builds the frontend, and deploys the Worker.
+
+Commits that are not part of a published release do not trigger a notification. Use `npm run update -- --check` to only check the latest release, or `--force` to reinstall it.
+
+For maintainers: bump `version` in `src/shared/app-config.json`, then publish a GitHub Release with the matching tag (`vX.Y.Z`). To point updates at a different repository, change `repository` in the same file.
 
 ## Security
 
@@ -175,6 +183,7 @@ tests/                    Unit tests
 | `npm run deploy` | Deploy the Worker with Wrangler |
 | `npm run publish` | Build and deploy in one step |
 | `npm run setup` | Interactive Cloudflare setup and deploy (new or existing resources) |
+| `npm run update` | Update from the latest GitHub Release and deploy |
 | `npm run reset-password` | Reset the admin password |
 | `npm test` | Run the unit tests |
 | `npm run typecheck` | Type-check the Worker and web app |

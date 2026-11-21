@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "description": "Situs kurasi produk Shopee self-hosted di Cloudflare Workers",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lukmanbagus/shopilliate.git"
+  },
   "engines": {
     "node": ">=20.19.0"
   },
@@ -24,6 +28,7 @@
     "deploy": "wrangler deploy",
     "publish": "npm run build && wrangler deploy",
     "setup": "node scripts/setup.mjs",
+    "update": "node scripts/update.mjs",
     "reset-password": "node scripts/reset-password.mjs"
   },
   "dependencies": {

@@ -97,3 +97,13 @@ export interface AdminSettings {
   hasShopeeSecret: boolean
   language: 'en' | 'id'
 }
+
+export interface UpdateInfo {
+  currentVersion: string
+  latestVersion: string
+  updateAvailable: boolean
+  checked: boolean
+  repository: string
+  releaseUrl: string | null
+  publishedAt: string | null
+}

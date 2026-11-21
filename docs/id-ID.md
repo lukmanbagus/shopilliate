@@ -133,13 +133,21 @@ npm run reset-password -- --local
 
 ## Memperbarui
 
+Pembaruan mengikuti GitHub Releases. Jika ada release yang lebih baru, footer panel admin menampilkan versi terbaru, tautan catatan rilis, dan perintah `npm run update`.
+
 ```bash
-git pull
-npm install
-npm run publish
+npm run update
 ```
 
-`npm run publish` membangun frontend dan mendeploy Worker. Jika memakai tombol Deploy to Cloudflare atau Workers Builds, deploy ulang dari dashboard. Skema database diperbarui otomatis; tidak ada migrasi yang perlu dijalankan.
+Skrip memeriksa release terbaru di GitHub, lalu:
+
+- mempertahankan konfigurasi resource di `wrangler.jsonc`, vars lokal, `.dev.vars`, berkas `.env*`, serta data D1/R2 yang sudah ada;
+- mencadangkan `wrangler.jsonc` ke `.update-backup/` sebelum mengganti berkas;
+- memasang dependensi, membangun frontend, dan mendeploy Worker.
+
+Commit yang bukan bagian dari release tidak memicu notifikasi. Gunakan `npm run update -- --check` untuk hanya memeriksa release terbaru, atau `--force` untuk memasang ulang.
+
+Untuk pengelola: naikkan `version` di `src/shared/app-config.json`, lalu publikasikan GitHub Release dengan tag yang sesuai (`vX.Y.Z`). Untuk memakai repository lain sebagai sumber update, ubah `repository` di berkas yang sama.
 
 ## Keamanan
 
@@ -181,6 +189,7 @@ tests/                    Uji unit
 | `npm run deploy` | Deploy Worker dengan Wrangler |
 | `npm run publish` | Bangun dan deploy dalam satu langkah |
 | `npm run setup` | Setup Cloudflare interaktif dan deploy (resource baru atau yang sudah ada) |
+| `npm run update` | Perbarui dari GitHub Release terbaru lalu deploy |
 | `npm run reset-password` | Atur ulang password admin |
 | `npm test` | Jalankan uji unit |
 | `npm run typecheck` | Periksa tipe Worker dan aplikasi web |
