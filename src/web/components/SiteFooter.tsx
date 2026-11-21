@@ -24,9 +24,19 @@ export function SiteFooter({
               siteName,
             })}
           </span>
-          <a href="/admin" className="font-semibold hover:text-primary">
-            {t('Masuk admin')}
-          </a>
+          <span className="flex items-center gap-3">
+            <a
+              href="https://lukmanbagus.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold hover:text-primary"
+            >
+              {t('Dibuat oleh')} Lukman Bagus
+            </a>
+            <a href="/admin" className="font-semibold hover:text-primary">
+              {t('Masuk admin')}
+            </a>
+          </span>
         </p>
       </div>
     </footer>

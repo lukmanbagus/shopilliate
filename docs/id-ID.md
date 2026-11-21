@@ -8,6 +8,8 @@ Semua berjalan pada satu Cloudflare Worker: API (`/api/*`), gambar (`/img/*`), d
 
 [English](../README.md)
 
+**Demo:** [linkby.lukmanbagus.com](https://linkby.lukmanbagus.com) — contoh situs yang dibangun dengan Shopilliate.
+
 ## Fitur
 
 - Tambah produk hanya dengan menempelkan link Shopee. Data diambil melalui Shopee Affiliate API resmi bila dikonfigurasi, dengan fallback halaman publik dan formulir manual sebagai pilihan terakhir.

@@ -8,6 +8,8 @@ Everything runs on a single Cloudflare Worker: the API (`/api/*`), images (`/img
 
 [Bahasa Indonesia](docs/id-ID.md)
 
+**Live demo:** [linkby.lukmanbagus.com](https://linkby.lukmanbagus.com) — an example site built with Shopilliate.
+
 ## Features
 
 - Add products by pasting a Shopee link. Data is fetched through the official Shopee Affiliate API when configured, with a public-page fallback and a manual form as the last resort.
