@@ -1,0 +1,29 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "shopilliate",
+	"main": "src/worker/index.ts",
+	"compatibility_date": "2026-11-01",
+	// Static assets hasil build React (Vite) dilayani oleh Worker yang sama.
+	"assets": {
+		"directory": "./dist/client",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": true
+	},
+	// Tanpa database_id: Cloudflare memprovision resource otomatis saat deploy.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "shopilliate-db"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "BUCKET",
+			"bucket_name": "shopilliate-images"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}
