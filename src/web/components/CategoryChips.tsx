@@ -12,14 +12,14 @@ export default function CategoryChips({
   const parents = categories.filter((category) => category.parentId === null)
 
   const chip = (active: boolean) =>
-    `flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-semibold transition ${
+    `flex min-h-11 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold transition ${
       active
         ? 'bg-primary-soft text-[#8f2a0c]'
         : 'text-muted hover:bg-page hover:text-ink'
     }`
 
   return (
-    <div className="no-scrollbar flex gap-1 overflow-x-auto">
+    <div className="no-scrollbar flex gap-1.5 overflow-x-auto">
       <Link to="/" className={chip(pathname === '/')}>
         {t('Semua')}
       </Link>

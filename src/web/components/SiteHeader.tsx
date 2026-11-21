@@ -26,7 +26,7 @@ export default function SiteHeader({
 
   return (
     <header className="border-line sticky top-0 z-20 border-b bg-card/95 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3 sm:py-3.5">
         <Link
           to="/"
           className="shrink-0 text-xl font-extrabold tracking-tight"
@@ -39,7 +39,7 @@ export default function SiteHeader({
         <form
           onSubmit={handleSearch}
           role="search"
-          className="order-last flex w-full min-w-0 flex-1 sm:order-none sm:w-auto"
+          className="order-last flex w-full min-w-0 basis-full sm:order-none sm:w-auto sm:basis-auto sm:flex-1"
         >
           <label htmlFor="search-input" className="sr-only">
             {t('Cari produk')}
@@ -72,7 +72,7 @@ export default function SiteHeader({
         </form>
       </div>
 
-      <div className="mx-auto w-full max-w-6xl px-2 pb-1">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-2.5">
         <CategoryChips categories={categories} />
       </div>
     </header>

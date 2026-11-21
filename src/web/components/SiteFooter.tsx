@@ -16,7 +16,6 @@ export function SiteFooter({
           {disclosure ||
             t('Situs ini memuat tautan afiliasi. Kami dapat menerima komisi dari pembelian melalui tautan tersebut tanpa biaya tambahan untuk Anda.')}
         </p>
-        <p>{t('Situs ini tidak terafiliasi dengan Shopee.')}</p>
         <p className="flex flex-wrap items-center justify-between gap-2">
           <span>
             {t('© {year} {siteName}. Harga dapat berubah sewaktu-waktu di Shopee.', {
@@ -24,19 +23,14 @@ export function SiteFooter({
               siteName,
             })}
           </span>
-          <span className="flex items-center gap-3">
-            <a
-              href="https://lukmanbagus.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold hover:text-primary"
-            >
-              {t('Dibuat oleh')} Lukman Bagus
-            </a>
-            <a href="/admin" className="font-semibold hover:text-primary">
-              {t('Masuk admin')}
-            </a>
-          </span>
+          <a
+            href="https://lukmanbagus.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold hover:text-primary"
+          >
+            {t('Dibuat oleh')} Lukman Bagus
+          </a>
         </p>
       </div>
     </footer>

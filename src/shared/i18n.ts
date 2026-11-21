@@ -66,7 +66,6 @@ const EN: Record<string, string> = {
   'Lupa password? Jalankan': 'Forgot your password? Run',
   'di server Anda.': 'on your server.',
   'Gagal masuk. Silakan coba lagi.': 'Sign-in failed. Please try again.',
-  'Masuk admin': 'Admin sign in',
 
   // Dashboard
   'Ringkasan performa etalase Anda.': 'An overview of your storefront performance.',
@@ -256,8 +255,6 @@ const EN: Record<string, string> = {
     'Products will appear here once an admin adds them.',
   'Situs ini memuat tautan afiliasi. Kami dapat menerima komisi dari pembelian melalui tautan tersebut tanpa biaya tambahan untuk Anda.':
     'This site contains affiliate links. We may earn a commission from purchases made through these links at no extra cost to you.',
-  'Situs ini tidak terafiliasi dengan Shopee.':
-    'This site is not affiliated with Shopee.',
   'Dibuat oleh': 'Created by',
   '© {year} {siteName}. Harga dapat berubah sewaktu-waktu di Shopee.':
     '© {year} {siteName}. Prices may change at any time on Shopee.',
