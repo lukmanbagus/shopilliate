@@ -1,14 +1,37 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useSite } from '../components/PublicLayout'
+import CategorySlider from '../components/CategorySlider'
 import Hero from '../components/Hero'
+import type { ProductLayout } from '../components/ProductCard'
 import ProductGrid from '../components/ProductGrid'
-import { imageUrl } from '../lib/format'
+import { LayoutGridIcon, LayoutListIcon } from '../components/icons'
 import { useLanguage } from '../lib/language'
+
+const LAYOUT_STORAGE_KEY = 'shopilliate:home-layout'
+
+function readSavedLayout(): ProductLayout {
+  try {
+    const saved = window.localStorage.getItem(LAYOUT_STORAGE_KEY)
+    return saved === 'list' ? 'list' : 'grid'
+  } catch {
+    return 'grid'
+  }
+}
 
 export default function Home() {
   const { settings, categories, topProducts } = useSite()
   const { t } = useLanguage()
+  const [layout, setLayout] = useState<ProductLayout>(readSavedLayout)
   const parents = categories.filter((category) => category.parentId === null)
+
+  const handleLayoutChange = (next: ProductLayout) => {
+    setLayout(next)
+    try {
+      window.localStorage.setItem(LAYOUT_STORAGE_KEY, next)
+    } catch {
+      // Abaikan jika storage tidak tersedia (mis. mode privat ketat)
+    }
+  }
 
   return (
     <div>
@@ -20,55 +43,7 @@ export default function Home() {
         }
       />
 
-      <section className="mt-8" aria-labelledby="kategori-heading">
-        <h2 id="kategori-heading" className="text-lg font-bold">
-          {t('Belanja per Kategori')}
-        </h2>
-        {parents.length === 0 ? (
-          <p className="border-line text-muted mt-3 rounded-xl border bg-card px-4 py-6 text-sm">
-            {t('Belum ada kategori. Admin dapat menambahkannya dari panel admin.')}
-          </p>
-        ) : (
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {parents.map((category) => {
-              const image = imageUrl(category.imageKey)
-              return (
-                <Link
-                  key={category.id}
-                  to={`/k/${category.slug}`}
-                  className="border-line flex items-center gap-3 rounded-xl border bg-card p-3 transition hover:shadow-sm"
-                >
-                  {image ? (
-                    <img
-                      src={image}
-                      alt=""
-                      width={56}
-                      height={56}
-                      loading="lazy"
-                      decoding="async"
-                      className="border-line h-14 w-14 shrink-0 rounded-lg border object-cover"
-                    />
-                  ) : (
-                    <span className="bg-primary-soft text-primary-ink flex h-14 w-14 shrink-0 items-center justify-center rounded-lg text-lg font-extrabold">
-                      {category.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold">
-                      {category.name}
-                    </span>
-                    <span className="text-muted block text-xs">
-                      {t('{count} produk', {
-                        count: category.productCount ?? 0,
-                      })}
-                    </span>
-                  </span>
-                </Link>
-              )
-            })}
-          </div>
-        )}
-      </section>
+      <CategorySlider categories={parents} />
 
       <section className="mt-10" aria-labelledby="top-heading">
         <div className="flex items-end justify-between gap-3">
@@ -80,10 +55,45 @@ export default function Home() {
               {t('Produk andalan yang paling sering dipilih.')}
             </p>
           </div>
+          <div
+            role="group"
+            aria-label={t('Ubah tampilan produk')}
+            className="border-line inline-flex shrink-0 items-center gap-0.5 rounded-lg border bg-card p-0.5"
+          >
+            <button
+              type="button"
+              onClick={() => handleLayoutChange('grid')}
+              aria-pressed={layout === 'grid'}
+              aria-label={t('Tampilan grid')}
+              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
+                layout === 'grid'
+                  ? 'bg-primary-soft text-primary-ink'
+                  : 'text-muted hover:text-ink'
+              }`}
+            >
+              <LayoutGridIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('Grid')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleLayoutChange('list')}
+              aria-pressed={layout === 'list'}
+              aria-label={t('Tampilan list')}
+              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
+                layout === 'list'
+                  ? 'bg-primary-soft text-primary-ink'
+                  : 'text-muted hover:text-ink'
+              }`}
+            >
+              <LayoutListIcon className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('List')}</span>
+            </button>
+          </div>
         </div>
         <div className="mt-4">
           <ProductGrid
             products={topProducts}
+            layout={layout}
             emptyTitle="Belum ada produk bertanda TOP."
             emptyDescription="Admin dapat menandai produk sebagai TOP dari panel admin."
           />

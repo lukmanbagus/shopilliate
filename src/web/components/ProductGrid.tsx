@@ -1,10 +1,15 @@
 import type { PublicProduct } from '../../shared/types'
 import { useLanguage } from '../lib/language'
-import ProductCard from './ProductCard'
+import ProductCard, { type ProductLayout } from './ProductCard'
 import { ProductGridSkeleton } from './Skeleton'
+
+const DEFAULT_GRID_CLASS =
+  'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'
 
 interface Props {
   products: PublicProduct[]
+  layout?: ProductLayout
+  gridClassName?: string
   loading?: boolean
   skeletonCount?: number
   emptyTitle?: string
@@ -13,13 +18,17 @@ interface Props {
 
 export default function ProductGrid({
   products,
+  layout = 'grid',
+  gridClassName,
   loading = false,
   skeletonCount = 8,
   emptyTitle = 'Belum ada produk.',
   emptyDescription = 'Produk akan tampil di sini setelah ditambahkan oleh admin.',
 }: Props) {
   const { t } = useLanguage()
-  if (loading) return <ProductGridSkeleton count={skeletonCount} />
+  if (loading) {
+    return <ProductGridSkeleton count={skeletonCount} layout={layout} />
+  }
 
   if (products.length === 0) {
     return (
@@ -30,10 +39,20 @@ export default function ProductGrid({
     )
   }
 
+  if (layout === 'list') {
+    return (
+      <div className="flex flex-col gap-3">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} layout="list" />
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className={gridClassName ?? DEFAULT_GRID_CLASS}>
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard key={product.id} product={product} layout="grid" />
       ))}
     </div>
   )

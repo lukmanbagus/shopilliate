@@ -221,6 +221,13 @@ const EN: Record<string, string> = {
 
   // Beranda
   'Belanja per Kategori': 'Shop by Category',
+  'Kategori sebelumnya': 'Previous categories',
+  'Kategori berikutnya': 'Next categories',
+  'Ubah tampilan produk': 'Switch product layout',
+  'Tampilan grid': 'Grid view',
+  'Tampilan list': 'List view',
+  'Grid': 'Grid',
+  'List': 'List',
   'Belum ada kategori. Admin dapat menambahkannya dari panel admin.':
     'No categories yet. Admins can add them from the admin panel.',
   '{count} produk': '{count} products',
