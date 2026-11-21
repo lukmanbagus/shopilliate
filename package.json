@@ -1,6 +1,6 @@
 {
   "name": "shopilliate",
-  "version": "1.0.0",
+  "version": "1.0.9",
   "private": true,
   "type": "module",
   "description": "Situs kurasi produk Shopee self-hosted di Cloudflare Workers",
