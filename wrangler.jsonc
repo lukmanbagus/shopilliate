@@ -3,14 +3,14 @@
 	"name": "shopilliate",
 	"main": "src/worker/index.ts",
 	"compatibility_date": "2026-11-01",
-	// Static assets hasil build React (Vite) dilayani oleh Worker yang sama.
+	// React (Vite) build output is served by the same Worker as static assets.
 	"assets": {
 		"directory": "./dist/client",
 		"binding": "ASSETS",
 		"not_found_handling": "single-page-application",
 		"run_worker_first": true
 	},
-	// Tanpa database_id: Cloudflare memprovision resource otomatis saat deploy.
+	// Without database_id, Cloudflare provisions the resource automatically on deploy.
 	"d1_databases": [
 		{
 			"binding": "DB",

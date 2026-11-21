@@ -1,4 +1,4 @@
--- Skema awal Shopilliate. Dijalankan otomatis oleh ensureSchema() di Worker.
+-- Initial Shopilliate schema. Created automatically by ensureSchema() in the Worker.
 CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Mengatur ulang password admin tanpa menyimpan atau mencetak password asli.
- * Default: database D1 remote. Gunakan --local untuk data pengembangan lokal.
+ * Reset the admin password without storing or printing the plaintext.
+ * Defaults to the remote D1 database. Use --local for local development data.
  */
 import { spawnSync } from 'node:child_process'
 import { webcrypto } from 'node:crypto'
@@ -68,7 +68,7 @@ async function hashPassword(password) {
 function askHidden(question) {
   return new Promise((resolve, reject) => {
     if (!process.stdin.isTTY) {
-      reject(new Error('Terminal interaktif diperlukan untuk mengisi password.'))
+      reject(new Error('An interactive terminal is required to enter a password.'))
       return
     }
     process.stdout.write(question)
@@ -87,7 +87,7 @@ function askHidden(question) {
       if (char === '\u0003') {
         cleanup()
         process.stdout.write('\n')
-        reject(new Error('Dibatalkan.'))
+        reject(new Error('Cancelled.'))
         return
       }
       if (char === '\r' || char === '\n') {
@@ -107,9 +107,9 @@ function askHidden(question) {
 }
 
 async function main() {
-  console.log('Shopilliate — atur ulang password admin')
+  console.log('Shopilliate — reset admin password')
   console.log(
-    `Database: ${databaseName} (${local ? 'lokal' : 'remote Cloudflare'})`,
+    `Database: ${databaseName} (${local ? 'local' : 'remote Cloudflare'})`,
   )
 
   if (!local) {
@@ -118,14 +118,14 @@ async function main() {
       encoding: 'utf8',
     })
     if (who.status !== 0) {
-      fail('Belum login Cloudflare. Jalankan: npx wrangler login')
+      fail('Not signed in to Cloudflare. Run: npx wrangler login')
     }
   }
 
   const query = d1('SELECT id, username FROM users ORDER BY id LIMIT 1')
   if (query.status !== 0) {
     fail(
-      `Tidak dapat membaca tabel users. Pastikan database "${databaseName}" sudah ada dan aplikasi pernah dibuka.\n${query.stderr ?? ''}`,
+      `Could not read the users table. Make sure "${databaseName}" exists and the app has been opened at least once.\n${query.stderr ?? ''}`,
     )
   }
 
@@ -136,22 +136,24 @@ async function main() {
       ? parsed.flatMap((entry) => entry.results ?? [])
       : (parsed.results ?? [])
   } catch {
-    fail('Keluaran Wrangler tidak dapat dibaca.')
+    fail('Could not parse the Wrangler output.')
   }
 
   const user = rows[0]
-  if (!user) fail('Belum ada akun admin. Buka aplikasi dan selesaikan setup dahulu.')
+  if (!user) {
+    fail('No admin account yet. Open the app and complete setup first.')
+  }
 
   let password = ''
   while (password.length < 10) {
-    password = await askHidden(`Password baru untuk "${user.username}": `)
+    password = await askHidden(`New password for "${user.username}": `)
     if (password.length < 10) {
-      console.log('Password minimal 10 karakter. Coba lagi.')
+      console.log('Password must be at least 10 characters. Try again.')
     }
   }
-  const confirmation = await askHidden('Ulangi password baru: ')
+  const confirmation = await askHidden('Repeat the new password: ')
   if (password !== confirmation) {
-    fail('Konfirmasi tidak cocok. Tidak ada perubahan yang disimpan.')
+    fail('Passwords do not match. Nothing was changed.')
   }
 
   const { hash, salt } = await hashPassword(password)
@@ -160,16 +162,18 @@ async function main() {
     `UPDATE users SET password_hash = '${hash}', password_salt = '${salt}' WHERE id = ${Number(user.id)}`,
   )
   if (update.status !== 0) {
-    fail(`Gagal menyimpan password baru.\n${update.stderr ?? ''}`)
+    fail(`Failed to save the new password.\n${update.stderr ?? ''}`)
   }
 
   const clear = d1('DELETE FROM sessions')
   if (clear.status !== 0) {
-    fail(`Password tersimpan, tetapi sesi lama gagal dihapus.\n${clear.stderr ?? ''}`)
+    fail(
+      `Password saved, but old sessions could not be cleared.\n${clear.stderr ?? ''}`,
+    )
   }
 
   console.log(
-    `\n✔ Password untuk "${user.username}" berhasil diubah. Semua sesi lama telah dikeluarkan.`,
+    `\n✔ Password for "${user.username}" changed. All old sessions have been signed out.`,
   )
 }
 

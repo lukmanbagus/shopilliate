@@ -415,7 +415,7 @@ function shopeeFailure(c: Parameters<typeof apiError>[0], error: unknown) {
   if (error instanceof ShopeeError) {
     return apiError(c, error.code, error.message, error.status as 400)
   }
-  console.error('Gagal mengambil data Shopee:', (error as Error).message)
+  console.error('Failed to fetch Shopee data:', (error as Error).message)
   return apiError(
     c,
     'FETCH_FAILED',

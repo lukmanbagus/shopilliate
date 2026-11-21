@@ -82,10 +82,10 @@ async function graphql<T>(
   }
   if (body.errors?.length) {
     throw new Error(
-      `Shopee Affiliate API: ${body.errors[0]?.message ?? 'kesalahan GraphQL'}`,
+      `Shopee Affiliate API: ${body.errors[0]?.message ?? 'GraphQL error'}`,
     )
   }
-  if (!body.data) throw new Error('Respons Shopee Affiliate API kosong')
+  if (!body.data) throw new Error('Empty Shopee Affiliate API response')
   return body.data
 }
 

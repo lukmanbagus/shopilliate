@@ -62,7 +62,7 @@ function run(command, commandArgs) {
   console.log(`\n→ ${command} ${commandArgs.join(' ')}`)
   const result = spawnSync(command, commandArgs, { cwd: root, stdio: 'inherit' })
   if (result.status !== 0) {
-    throw new Error(`Perintah gagal: ${command} ${commandArgs.join(' ')}`)
+    throw new Error(`Command failed: ${command} ${commandArgs.join(' ')}`)
   }
 }
 
@@ -96,13 +96,13 @@ function readWorkerName() {
 }
 
 function ensureLogin() {
-  console.log('Memeriksa login Cloudflare…')
+  console.log('Checking your Cloudflare login…')
   const who = capture(npx, ['wrangler', 'whoami'])
   if (who.status === 0) {
-    console.log('Login Cloudflare terdeteksi.')
+    console.log('Cloudflare login detected.')
     return
   }
-  console.log('Belum login. Membuka halaman login Cloudflare…')
+  console.log('Not signed in. Opening the Cloudflare login page…')
   run(npx, ['wrangler', 'login'])
 }
 
@@ -134,7 +134,7 @@ function listBuckets() {
         .filter(Boolean)
       if (names.length) return names
     } catch {
-      // Lanjut ke parsing teks biasa.
+      // Fall through to parsing the plain-text output.
     }
   }
 
@@ -153,23 +153,23 @@ function listBuckets() {
 
 async function chooseMode() {
   if (hasFlag('--new') && hasFlag('--existing')) {
-    fail('Pilih salah satu: --new atau --existing.')
+    fail('Choose either --new or --existing.')
   }
   if (hasFlag('--new')) return 'new'
   if (hasFlag('--existing')) return 'existing'
   if (!process.stdin.isTTY) return 'new'
 
-  console.log('\nBagaimana resource Cloudflare akan disiapkan?')
-  console.log('  1. Buat resource baru (D1 + R2)')
-  console.log('  2. Gunakan deployment yang sudah ada (pilih D1 + R2)')
-  const answer = await ask('Pilih 1 atau 2', '1')
+  console.log('\nHow should Cloudflare resources be prepared?')
+  console.log('  1. Create new resources (D1 + R2)')
+  console.log('  2. Use an existing deployment (choose D1 + R2)')
+  const answer = await ask('Choose 1 or 2', '1')
   return answer === '2' ? 'existing' : 'new'
 }
 
 async function chooseDatabase(databases) {
   while (true) {
     const answer = await ask(
-      'Pilih nomor atau ketik nama database (kosong untuk batal)',
+      'Enter a number or database name (leave empty to cancel)',
     )
     if (!answer) return null
     const index = Number(answer)
@@ -182,14 +182,14 @@ async function chooseDatabase(databases) {
         String(database.id).toLowerCase() === answer.toLowerCase(),
     )
     if (found) return found
-    console.log('Pilihan tidak dikenali. Coba lagi.')
+    console.log('Unknown choice. Try again.')
   }
 }
 
 async function chooseBucket(buckets) {
   while (true) {
     const answer = await ask(
-      'Pilih nomor atau ketik nama bucket (kosong untuk batal)',
+      'Enter a number or bucket name (leave empty to cancel)',
     )
     if (!answer) return null
     const index = Number(answer)
@@ -201,11 +201,11 @@ async function chooseBucket(buckets) {
     )
     if (found) return found
     if (!/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(answer)) {
-      console.log('Nama bucket R2 tidak valid. Coba lagi.')
+      console.log('Invalid R2 bucket name. Try again.')
       continue
     }
     const confirm = await ask(
-      `Bucket "${answer}" tidak ada di daftar. Gunakan tetap? (y/n)`,
+      `Bucket "${answer}" is not in the list. Use it anyway? (y/n)`,
       'n',
     )
     if (/^y/i.test(confirm)) return answer
@@ -219,7 +219,7 @@ async function selectExisting() {
 
   if (!process.stdin.isTTY && (!databaseOption || !bucketOption)) {
     fail(
-      'Mode --existing memerlukan --d1 dan --r2 saat dijalankan tanpa terminal interaktif.',
+      'Mode --existing requires --d1 and --r2 when running without an interactive terminal.',
     )
   }
 
@@ -232,13 +232,13 @@ async function selectExisting() {
         String(row.id).toLowerCase() === databaseOption.toLowerCase(),
     )
     if (!database) {
-      fail(`Database D1 "${databaseOption}" tidak ditemukan di akun ini.`)
+      fail(`Database "${databaseOption}" was not found in this account.`)
     }
   } else if (databases.length === 0) {
-    console.log('Tidak ada database D1 di akun ini; resource baru akan dibuat.')
+    console.log('No D1 databases found in this account; new resources will be created.')
     return null
   } else {
-    console.log('\nDatabase D1 yang tersedia:')
+    console.log('\nAvailable D1 databases:')
     databases.forEach((row, index) => {
       console.log(`  ${index + 1}. ${row.name} (${row.id})`)
     })
@@ -250,9 +250,9 @@ async function selectExisting() {
   if (!bucket) {
     const buckets = listBuckets()
     if (buckets.length === 0) {
-      bucket = await ask('Nama bucket R2 yang sudah ada (kosong untuk batal)')
+      bucket = await ask('Existing R2 bucket name (leave empty to cancel)')
     } else {
-      console.log('\nBucket R2 yang tersedia:')
+      console.log('\nAvailable R2 buckets:')
       buckets.forEach((name, index) => {
         console.log(`  ${index + 1}. ${name}`)
       })
@@ -264,15 +264,13 @@ async function selectExisting() {
   const defaultWorker = readWorkerName()
   let workerName = workerOption
   if (!workerName) {
-    workerName = await ask('Nama Worker yang sudah ada', defaultWorker)
+    workerName = await ask('Existing Worker name', defaultWorker)
   }
   if (!/^[a-z0-9][a-z0-9-]{0,62}$/.test(workerName)) {
-    fail(
-      'Nama Worker hanya boleh berisi huruf kecil, angka, dan tanda hubung.',
-    )
+    fail('Worker names may only contain lowercase letters, numbers, and hyphens.')
   }
 
-  console.log('\nResource yang dipilih:')
+  console.log('\nSelected resources:')
   console.log(`  Worker : ${workerName}`)
   console.log(`  D1     : ${database.name} (${database.id})`)
   console.log(`  R2     : ${bucket}`)
@@ -289,9 +287,9 @@ async function selectExisting() {
 
 function updateSection(config, key, updater) {
   const start = config.indexOf(`"${key}"`)
-  if (start === -1) fail(`Bagian ${key} tidak ditemukan di wrangler.jsonc.`)
+  if (start === -1) fail(`Section ${key} not found in wrangler.jsonc.`)
   const end = config.indexOf(']', start)
-  if (end === -1) fail(`Bagian ${key} tidak lengkap di wrangler.jsonc.`)
+  if (end === -1) fail(`Section ${key} is incomplete in wrangler.jsonc.`)
   return (
     config.slice(0, start) + updater(config.slice(start, end)) + config.slice(end)
   )
@@ -306,8 +304,8 @@ function writeConfig({ workerName, databaseName, databaseId, bucketName }) {
 
   if (databaseName || databaseId) {
     config = config.replace(
-      /\/\/\s*Tanpa database_id:[^\n]*/,
-      '// Resource ID ditulis oleh skrip setup (hapus untuk auto-provisioning).',
+      /\/\/\s*Without database_id[^\n]*/,
+      '// Resource IDs are written by the setup script (remove them to use auto-provisioning).',
     )
     config = updateSection(config, 'd1_databases', (section) => {
       if (databaseName) {
@@ -340,64 +338,64 @@ function writeConfig({ workerName, databaseName, databaseId, bucketName }) {
   }
 
   writeFileSync(CONFIG_PATH, config)
-  console.log('\nKonfigurasi wrangler.jsonc diperbarui.')
+  console.log('\nwrangler.jsonc updated.')
 }
 
 function ensureD1() {
-  console.log(`\nMemeriksa database D1 "${D1_NAME}"…`)
+  console.log(`\nChecking D1 database "${D1_NAME}"…`)
   let database = listDatabases().find((row) => row.name === D1_NAME)
   if (!database) {
-    console.log(`Database belum ada. Membuat "${D1_NAME}"…`)
+    console.log(`Database not found. Creating "${D1_NAME}"…`)
     run(npx, ['wrangler', 'd1', 'create', D1_NAME])
     database = listDatabases().find((row) => row.name === D1_NAME)
   }
   if (!database) {
     fail(
-      'Database D1 tidak dapat dibuat atau ditemukan. Coba jalankan lagi, atau buat manual: npx wrangler d1 create ' +
+      'The D1 database could not be created or found. Try again, or create it manually: npx wrangler d1 create ' +
         D1_NAME,
     )
   }
-  console.log(`Database D1 siap (${database.id}).`)
+  console.log(`D1 database ready (${database.id}).`)
   return database
 }
 
 function ensureR2() {
-  console.log(`\nMemeriksa bucket R2 "${R2_NAME}"…`)
+  console.log(`\nChecking R2 bucket "${R2_NAME}"…`)
   const result = capture(npx, ['wrangler', 'r2', 'bucket', 'create', R2_NAME])
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
   if (result.status !== 0 && !/already exists|already own/i.test(output)) {
     fail(
-      'Bucket R2 tidak dapat dibuat. Pastikan R2 sudah diaktifkan di akun Cloudflare Anda (R2 memiliki kuota gratis).',
+      'The R2 bucket could not be created. Make sure R2 is enabled on your Cloudflare account (R2 has a free tier).',
     )
   }
-  console.log(`Bucket R2 siap: ${R2_NAME}.`)
+  console.log(`R2 bucket ready: ${R2_NAME}.`)
   return R2_NAME
 }
 
 function deploy() {
-  console.log('\nMembangun frontend…')
+  console.log('\nBuilding the frontend…')
   run(npm, ['run', 'build'])
 
-  console.log('\nMendeploy Worker…')
+  console.log('\nDeploying the Worker…')
   const result = capture(npx, ['wrangler', 'deploy'])
   process.stdout.write(result.stdout ?? '')
   process.stderr.write(result.stderr ?? '')
-  if (result.status !== 0) fail('Deploy gagal. Periksa pesan Wrangler di atas.')
+  if (result.status !== 0) fail('Deploy failed. Check the Wrangler output above.')
 
   const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`
   const url = output.match(/https:\/\/[^\s]+\.workers\.dev/i)?.[0]
 
   console.log('\n──────────────────────────────────────────')
-  console.log('Selesai! Worker berhasil dideploy.')
+  console.log('Done! The Worker has been deployed.')
   if (url) {
-    console.log(`Buka ${url} untuk menyelesaikan setup admin.`)
+    console.log(`Open ${url} to finish the admin setup.`)
   } else {
     console.log(
-      'Buka URL Worker Anda di dashboard Cloudflare untuk menyelesaikan setup admin.',
+      'Open your Worker URL in the Cloudflare dashboard to finish the admin setup.',
     )
   }
   console.log(
-    'Disarankan segera membuka URL tersebut agar orang lain tidak lebih dulu membuat akun admin.',
+    'Open that URL right away so nobody else can create the admin account first.',
   )
   console.log('──────────────────────────────────────────')
 }
@@ -408,7 +406,7 @@ async function main() {
     return
   }
 
-  console.log('Shopilliate — setup Cloudflare')
+  console.log('Shopilliate — Cloudflare setup')
   ensureLogin()
 
   const mode = await chooseMode()
@@ -418,7 +416,7 @@ async function main() {
       deploy()
       return
     }
-    console.log('\nPemilihan dibatalkan. Melanjutkan dengan resource baru.')
+    console.log('\nSelection cancelled. Continuing with new resources.')
   }
 
   const database = ensureD1()

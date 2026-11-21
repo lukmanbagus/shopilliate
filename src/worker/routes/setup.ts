@@ -62,11 +62,6 @@ setupRoutes.post('/', async (c) => {
   const userId = Number(insert.meta.last_row_id)
   await setSetting(c.env.DB, 'installed', 'true')
   await setSetting(c.env.DB, 'site_name', input.siteName)
-  await setSetting(
-    c.env.DB,
-    'affiliate_disclosure',
-    'Situs ini memuat tautan afiliasi. Kami dapat menerima komisi dari pembelian melalui tautan tersebut tanpa biaya tambahan untuk Anda.',
-  )
 
   const { token } = await createSession(c.env.DB, userId)
   setSessionCookie(c, token)

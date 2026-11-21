@@ -46,7 +46,7 @@ export async function lookupShopeeProduct(
       }
     }
   } catch (error) {
-    console.warn('Adapter Affiliate API gagal:', (error as Error).message)
+    console.warn('Affiliate API adapter failed:', (error as Error).message)
   }
 
   try {
@@ -64,7 +64,7 @@ export async function lookupShopeeProduct(
       }
     }
   } catch (error) {
-    console.warn('Adapter HTML gagal:', (error as Error).message)
+    console.warn('HTML adapter failed:', (error as Error).message)
   }
 
   throw new ShopeeError(

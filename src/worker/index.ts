@@ -56,7 +56,7 @@ app.notFound((c) => {
 })
 
 app.onError((error, c) => {
-  console.error('Kesalahan worker:', error)
+  console.error('Worker error:', error)
   return apiError(
     c,
     'INTERNAL',
