@@ -19,6 +19,7 @@ Everything runs on a single Cloudflare Worker: the API (`/api/*`), images (`/img
 - First-run setup wizard with atomic admin account creation and an optional `SETUP_TOKEN`.
 - English by default, with Bahasa Indonesia available in Settings.
 - One-color theming: pick a single accent color and the supporting shades are generated automatically.
+- Admin-only display currency formatting, with no conversion or exchange rates.
 - Self-contained schema creation: no manual database migrations.
 
 ## Tech stack
@@ -115,6 +116,8 @@ The interface defaults to **English**. Switch to **Bahasa Indonesia** in **Admin
 Site name, top banner text, hero title and description, affiliate disclosure, categories, subcategories, and product details (including TOP badges) are all editable from the admin panel.
 
 **Theme color:** choose one color in **Admin → Settings → Theme color**. Shopilliate derives the hover, soft background, text, and contrast colors automatically, so the whole storefront and admin panel stay consistent without picking shades manually.
+
+**Currency:** the currency selector is available **only in the admin panel**. It changes how stored prices are formatted (for example `$100,000.00` or `Rp100.000`); Shopilliate does not convert values or fetch exchange rates. Choose the currency that matches how your product prices are stored. Visitors cannot change the currency.
 
 ## Reset a forgotten password
 

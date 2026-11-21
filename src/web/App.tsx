@@ -15,6 +15,7 @@ import Categories from './pages/admin/Categories'
 import Settings from './pages/admin/Settings'
 import { api, ApiError, setApiLanguage, type SetupStatus } from './lib/api'
 import { LanguageProvider, useLanguage } from './lib/language'
+import { CurrencyProvider } from './lib/currency'
 import {
   DEFAULT_LANGUAGE,
   normalizeLanguage,
@@ -25,6 +26,10 @@ import {
   DEFAULT_THEME_COLOR,
   normalizeHexColor,
 } from '../shared/theme'
+import {
+  DEFAULT_CURRENCY,
+  normalizeCurrency,
+} from '../shared/currency'
 
 function Placeholder({ title }: { title: string }) {
   const { t } = useLanguage()
@@ -71,6 +76,7 @@ export default function App() {
   const [attempt, setAttempt] = useState(0)
   const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE)
   const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR)
+  const [currency, setCurrency] = useState(DEFAULT_CURRENCY)
 
   function changeLanguage(next: Language) {
     const value = normalizeLanguage(next)
@@ -97,6 +103,7 @@ export default function App() {
         setStatus(data)
         changeLanguage(normalizeLanguage(data.language))
         setThemeColor(normalizeHexColor(data.themeColor) ?? DEFAULT_THEME_COLOR)
+        setCurrency(normalizeCurrency(data.currency))
       })
       .catch((err) => {
         if (!active) return
@@ -166,7 +173,12 @@ export default function App() {
 
   return (
     <LanguageProvider language={language} onChange={changeLanguage}>
-      {content}
+      <CurrencyProvider
+        currency={currency}
+        onChange={(nextCurrency) => setCurrency(nextCurrency)}
+      >
+        {content}
+      </CurrencyProvider>
     </LanguageProvider>
   )
 }

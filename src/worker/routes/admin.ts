@@ -26,6 +26,12 @@ import {
   normalizeVersion,
 } from '../../shared/version'
 import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
+import {
+  DEFAULT_CURRENCY,
+  isSupportedCurrency,
+  normalizeCurrency,
+  type CurrencyCode,
+} from '../../shared/currency'
 
 export const adminRoutes = new Hono<AppEnv>()
 
@@ -682,6 +688,7 @@ const settingsInput = z.object({
   clearShopeeCredentials: z.boolean().optional(),
   language: z.enum(['en', 'id']).optional(),
   themeColor: z.string().trim().max(20, 'Warna tidak valid.').optional(),
+  currency: z.string().trim().max(10).optional(),
 })
 
 const SETTING_KEYS: Record<string, string> = {
@@ -711,6 +718,9 @@ adminRoutes.get('/settings', async (c) => {
         normalizeHexColor(
           (await getSetting(c.env.DB, 'theme_color')) ?? DEFAULT_THEME_COLOR,
         ) ?? DEFAULT_THEME_COLOR,
+      currency: normalizeCurrency(
+        (await getSetting(c.env.DB, 'currency')) ?? DEFAULT_CURRENCY,
+      ),
     },
   })
 })
@@ -730,6 +740,14 @@ adminRoutes.patch('/settings', async (c) => {
     }
   }
 
+  let currencyValue: CurrencyCode | null = null
+  if (input.currency !== undefined) {
+    if (!isSupportedCurrency(input.currency)) {
+      return apiError(c, 'VALIDATION', 'Mata uang tidak didukung.', 400)
+    }
+    currencyValue = normalizeCurrency(input.currency)
+  }
+
   for (const [inputKey, settingKey] of Object.entries(SETTING_KEYS)) {
     const value = (input as Record<string, unknown>)[inputKey]
     if (typeof value === 'string') {
@@ -739,6 +757,10 @@ adminRoutes.patch('/settings', async (c) => {
 
   if (themeColorValue) {
     await setSetting(c.env.DB, 'theme_color', themeColorValue)
+  }
+
+  if (currencyValue) {
+    await setSetting(c.env.DB, 'currency', currencyValue)
   }
 
   if (input.clearShopeeCredentials) {

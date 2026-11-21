@@ -7,6 +7,10 @@ import { apiError, readJson } from '../lib/http'
 import { firstIssueMessage, setupInputSchema } from '../../shared/schemas'
 import { normalizeLanguage } from '../../shared/i18n'
 import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
+import {
+  DEFAULT_CURRENCY,
+  normalizeCurrency,
+} from '../../shared/currency'
 
 export const setupRoutes = new Hono<{ Bindings: Env }>()
 
@@ -17,11 +21,15 @@ setupRoutes.get('/status', async (c) => {
     normalizeHexColor(
       (await getSetting(c.env.DB, 'theme_color')) ?? DEFAULT_THEME_COLOR,
     ) ?? DEFAULT_THEME_COLOR
+  const currency = normalizeCurrency(
+    (await getSetting(c.env.DB, 'currency')) ?? DEFAULT_CURRENCY,
+  )
   return c.json({
     installed,
     needsToken: Boolean(c.env.SETUP_TOKEN),
     language,
     themeColor,
+    currency,
   })
 })
 

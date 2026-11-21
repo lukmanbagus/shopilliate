@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api'
-import { formatRupiah, imageUrl } from '../../lib/format'
+import { imageUrl } from '../../lib/format'
+import { useCurrency } from '../../lib/currency'
 import { useLanguage } from '../../lib/language'
 import type { DashboardData } from '../../../shared/types'
 
 export default function Dashboard() {
   const { t } = useLanguage()
+  const { formatPrice } = useCurrency()
   const [data, setData] = useState<DashboardData | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -135,7 +137,7 @@ export default function Dashboard() {
                     {product.title}
                   </p>
                   <p className="text-muted text-xs">
-                    {formatRupiah(product.price)}
+                    {formatPrice(product.price)}
                   </p>
                 </div>
                 <span className="text-sm font-bold">

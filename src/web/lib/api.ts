@@ -17,6 +17,7 @@ export interface SetupStatus {
   needsToken: boolean
   language: Language
   themeColor: string
+  currency: string
 }
 
 let requestLanguage: Language = 'en'

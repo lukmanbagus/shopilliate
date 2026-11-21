@@ -3,6 +3,10 @@ import { apiError } from '../lib/http'
 import type { Env } from '../types'
 import { normalizeLanguage } from '../../shared/i18n'
 import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
+import {
+  DEFAULT_CURRENCY,
+  normalizeCurrency,
+} from '../../shared/currency'
 
 export const publicRoutes = new Hono<{ Bindings: Env }>()
 
@@ -14,6 +18,7 @@ const PUBLIC_SETTING_KEYS = [
   'affiliate_disclosure',
   'language',
   'theme_color',
+  'currency',
 ]
 
 interface CategoryRow {
@@ -110,6 +115,7 @@ publicRoutes.get('/home', async (c) => {
       themeColor:
         normalizeHexColor(settings.theme_color ?? DEFAULT_THEME_COLOR) ??
         DEFAULT_THEME_COLOR,
+      currency: normalizeCurrency(settings.currency ?? DEFAULT_CURRENCY),
     },
     categories: (categoriesResult.results ?? []).map(toCategory),
     topProducts: (topsResult.results ?? []).map(toPublicProduct),

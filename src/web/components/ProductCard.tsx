@@ -1,10 +1,12 @@
-import { formatRupiah, imageUrl } from '../lib/format'
+import { imageUrl } from '../lib/format'
+import { useCurrency } from '../lib/currency'
 import { trackClick } from '../lib/track'
 import { useLanguage } from '../lib/language'
 import type { PublicProduct } from '../../shared/types'
 
 export default function ProductCard({ product }: { product: PublicProduct }) {
   const { t } = useLanguage()
+  const { formatPrice } = useCurrency()
   const image = imageUrl(product.imageKey)
 
   return (
@@ -42,7 +44,7 @@ export default function ProductCard({ product }: { product: PublicProduct }) {
           {product.title}
         </h3>
         <p className="text-primary-text text-xl font-extrabold tracking-tight">
-          {formatRupiah(product.price)}
+          {formatPrice(product.price)}
         </p>
         {product.soldText && (
           <p className="text-muted text-xs">{product.soldText}</p>

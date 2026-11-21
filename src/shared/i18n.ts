@@ -41,6 +41,10 @@ const EN: Record<string, string> = {
   'Warna teks': 'Text color',
   'Warna teks di atas warna utama': 'Text color on primary',
   'Default': 'Default',
+  'Mata uang': 'Currency',
+  'Tanpa konversi kurs. Pilih mata uang yang sesuai dengan harga produk Anda.':
+    'No exchange-rate conversion. Choose the currency that matches your product prices.',
+  'Mata uang tidak didukung.': 'Unsupported currency.',
 
   // Aplikasi / navigasi
   'Etalase gagal dimuat': 'Failed to load storefront',

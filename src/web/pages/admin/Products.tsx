@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api'
-import { formatRupiah, imageUrl } from '../../lib/format'
+import { imageUrl } from '../../lib/format'
+import { useCurrency } from '../../lib/currency'
 import { useLanguage } from '../../lib/language'
 import IconButton from '../../components/IconButton'
 import {
@@ -17,6 +18,7 @@ const LIMIT = 20
 
 export default function Products() {
   const { t } = useLanguage()
+  const { formatPrice } = useCurrency()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [total, setTotal] = useState(0)
@@ -255,7 +257,7 @@ export default function Products() {
                       </div>
                     </td>
                     <td className="px-4 py-3 font-semibold">
-                      {formatRupiah(product.price)}
+                      {formatPrice(product.price)}
                     </td>
                     <td className="text-muted px-4 py-3">
                       {product.categoryName ?? '—'}

@@ -7,6 +7,12 @@ import {
   firstIssueMessage,
 } from '../../../shared/schemas'
 import { LANGUAGES, type Language } from '../../../shared/i18n'
+import { useCurrency } from '../../lib/currency'
+import {
+  CURRENCIES,
+  normalizeCurrency,
+  type CurrencyCode,
+} from '../../../shared/currency'
 import {
   applyThemeColor,
   DEFAULT_THEME_COLOR,
@@ -17,6 +23,7 @@ import type { AdminSettings } from '../../../shared/types'
 
 export default function Settings() {
   const { t, setLanguage } = useLanguage()
+  const { setCurrency } = useCurrency()
   const [settings, setSettings] = useState<AdminSettings | null>(null)
   const [siteName, setSiteName] = useState('')
   const [bannerText, setBannerText] = useState('')
@@ -29,6 +36,7 @@ export default function Settings() {
   const [formLanguage, setFormLanguage] = useState<Language>('en')
   const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR)
   const [themeColorText, setThemeColorText] = useState(DEFAULT_THEME_COLOR)
+  const [currency, setCurrencyState] = useState<CurrencyCode>('IDR')
 
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState<{
@@ -61,6 +69,7 @@ export default function Settings() {
         setFormLanguage(value.language)
         setThemeColor(value.themeColor)
         setThemeColorText(value.themeColor)
+        setCurrencyState(normalizeCurrency(value.currency))
       })
       .catch((err) => {
         if (active) {
@@ -103,6 +112,7 @@ export default function Settings() {
         shopeeAppId: shopeeAppId.trim(),
         language: formLanguage,
         themeColor: normalizedTheme,
+        currency,
         ...(shopeeAppSecret ? { shopeeAppSecret } : {}),
         ...(clearShopeeCredentials ? { clearShopeeCredentials: true } : {}),
       })
@@ -112,6 +122,7 @@ export default function Settings() {
       setThemeColor(normalizedTheme)
       setThemeColorText(normalizedTheme)
       applyThemeColor(normalizedTheme)
+      setCurrency(currency)
       setNotice({ tone: 'ok', text: t('Pengaturan berhasil disimpan.') })
     } catch (err) {
       setNotice({
@@ -283,6 +294,27 @@ export default function Settings() {
             Aa
           </span>
         </div>
+
+        <label className="block text-sm font-semibold" htmlFor="currency">
+          {t('Mata uang')}
+        </label>
+        <select
+          id="currency"
+          value={currency}
+          onChange={(event) =>
+            setCurrencyState(event.target.value as CurrencyCode)
+          }
+          className="border-line mt-1 mb-1 min-h-11 w-full rounded-lg border bg-card px-3 text-sm sm:w-64"
+        >
+          {CURRENCIES.map((option) => (
+            <option key={option.code} value={option.code}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-muted mt-1 mb-4 text-xs">
+          {t('Tanpa konversi kurs. Pilih mata uang yang sesuai dengan harga produk Anda.')}
+        </p>
 
         <label className="block text-sm font-semibold" htmlFor="siteName">
           {t('Nama situs')}

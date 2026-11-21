@@ -57,6 +57,7 @@ export interface PublicSettings {
   affiliateDisclosure: string
   language: 'en' | 'id'
   themeColor: string
+  currency: string
 }
 
 export interface PublicHomeData {
@@ -98,6 +99,7 @@ export interface AdminSettings {
   hasShopeeSecret: boolean
   language: 'en' | 'id'
   themeColor: string
+  currency: string
 }
 
 export interface UpdateInfo {
