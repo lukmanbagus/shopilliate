@@ -3,6 +3,7 @@ import {
   contrastRatio,
   DEFAULT_THEME_COLOR,
   generateTheme,
+  mixColors,
   normalizeHexColor,
   relativeLuminance,
 } from '../src/shared/theme'
@@ -30,10 +31,17 @@ describe('warna tema', () => {
     )
   })
 
-  it('menjamin kontras teks minimal 4.5', () => {
+  it('menggelapkan primary-text sebesar 10% dari warna utama', () => {
     for (const color of ['#F2542D', '#2563EB', '#FFD400', '#111827']) {
       const theme = generateTheme(color)
-      expect(contrastRatio(theme.text, '#FFFFFF')).toBeGreaterThanOrEqual(4.5)
+      expect(theme.text).toBe(mixColors(theme.primary, '#000000', 0.1))
+    }
+    expect(generateTheme(DEFAULT_THEME_COLOR).text).toBe('#DA4C29')
+  })
+
+  it('menjamin kontras ink di atas soft minimal 4.5', () => {
+    for (const color of ['#F2542D', '#2563EB', '#FFD400', '#111827']) {
+      const theme = generateTheme(color)
       expect(contrastRatio(theme.ink, theme.soft)).toBeGreaterThanOrEqual(4.5)
     }
   })

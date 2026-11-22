@@ -102,7 +102,7 @@ export function generateTheme(input: string): ThemeColors {
     hover: mixColors(primary, '#000000', 0.14),
     soft,
     ink: ensureContrast(primary, soft, 4.5),
-    text: ensureContrast(primary, '#FFFFFF', 4.5),
+    text: mixColors(primary, '#000000', 0.1),
     onPrimary,
   }
 }
