@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 // @ts-expect-error - updater helpers are plain ESM modules.
 import {
+  ARCHIVE_DOWNLOAD_HEADERS,
   isNewerVersion,
   mergeWranglerConfig,
   parseJsonc,
+  resolveTarballUrl,
 } from '../scripts/lib/updater.mjs'
 
 const localConfig = `{
@@ -59,5 +61,36 @@ describe('updater helpers', () => {
   it('compares release versions', () => {
     expect(isNewerVersion('1.1.0', '1.0.9')).toBe(true)
     expect(isNewerVersion('v1.0.0', '1.0.0')).toBe(false)
+  })
+
+  it('uses GitHub-compatible Accept header for archive downloads', () => {
+    expect(ARCHIVE_DOWNLOAD_HEADERS.Accept).not.toContain(
+      'application/octet-stream',
+    )
+    expect(ARCHIVE_DOWNLOAD_HEADERS.Accept).toContain(
+      'application/vnd.github+json',
+    )
+    expect(ARCHIVE_DOWNLOAD_HEADERS['User-Agent']).toBe('shopilliate-updater')
+  })
+
+  it('resolves release tarball URL with codeload fallback', () => {
+    expect(
+      resolveTarballUrl('lukmanbagus/shopilliate', {
+        tag: 'v1.0.10',
+        tarballUrl:
+          'https://api.github.com/repos/lukmanbagus/shopilliate/tarball/v1.0.10',
+      }),
+    ).toBe(
+      'https://api.github.com/repos/lukmanbagus/shopilliate/tarball/v1.0.10',
+    )
+
+    expect(
+      resolveTarballUrl('lukmanbagus/shopilliate', {
+        tag: 'v1.0.10',
+        tarballUrl: null,
+      }),
+    ).toBe(
+      'https://codeload.github.com/lukmanbagus/shopilliate/tar.gz/refs/tags/v1.0.10',
+    )
   })
 })

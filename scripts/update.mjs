@@ -29,9 +29,11 @@ import {
   deployWorker,
 } from './lib/cloudflare.mjs'
 import {
+  ARCHIVE_DOWNLOAD_HEADERS,
   fetchLatestRelease,
   isNewerVersion,
   mergeWranglerConfig,
+  resolveTarballUrl,
 } from './lib/updater.mjs'
 
 const CONFIG_PATH = path.join(root, 'wrangler.jsonc')
@@ -77,10 +79,7 @@ function readAppConfig() {
 
 async function download(url, destination) {
   const response = await fetch(url, {
-    headers: {
-      Accept: 'application/octet-stream',
-      'User-Agent': 'shopilliate-updater',
-    },
+    headers: ARCHIVE_DOWNLOAD_HEADERS,
     redirect: 'follow',
     signal: AbortSignal.timeout(120_000),
   })
@@ -226,9 +225,7 @@ async function main() {
   const sourceDirectory = path.join(tempDirectory, 'source')
 
   try {
-    const url =
-      release.tarballUrl ??
-      `https://codeload.github.com/${repository}/tar.gz/refs/tags/${encodeURIComponent(release.tag)}`
+    const url = resolveTarballUrl(repository, release)
     console.log('\nDownloading the release…')
     await download(url, archive)
     extractArchive(archive, sourceDirectory)

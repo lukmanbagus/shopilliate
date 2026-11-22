@@ -109,6 +109,18 @@ export function isNewerVersion(latest, current) {
   return compareVersions(latest, current) > 0
 }
 
+export const ARCHIVE_DOWNLOAD_HEADERS = {
+  Accept: 'application/vnd.github+json, */*;q=0.8',
+  'User-Agent': 'shopilliate-updater',
+}
+
+export function resolveTarballUrl(repository, release) {
+  return (
+    release.tarballUrl ??
+    `https://codeload.github.com/${repository}/tar.gz/refs/tags/${encodeURIComponent(release.tag)}`
+  )
+}
+
 export async function fetchLatestRelease(repository, { timeoutMs = 15000 } = {}) {
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository)) {
     throw new Error('Invalid repository format. Use "owner/repo".')
