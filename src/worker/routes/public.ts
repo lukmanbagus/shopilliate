@@ -7,6 +7,10 @@ import {
   DEFAULT_CURRENCY,
   normalizeCurrency,
 } from '../../shared/currency'
+import {
+  MAX_PRODUCTS_PER_PAGE,
+  normalizeProductsPerPage,
+} from '../../shared/pagination'
 
 export const publicRoutes = new Hono<{ Bindings: Env }>()
 
@@ -19,6 +23,7 @@ const PUBLIC_SETTING_KEYS = [
   'language',
   'theme_color',
   'currency',
+  'products_per_page',
 ]
 
 interface CategoryRow {
@@ -116,6 +121,7 @@ publicRoutes.get('/home', async (c) => {
         normalizeHexColor(settings.theme_color ?? DEFAULT_THEME_COLOR) ??
         DEFAULT_THEME_COLOR,
       currency: normalizeCurrency(settings.currency ?? DEFAULT_CURRENCY),
+      productsPerPage: normalizeProductsPerPage(settings.products_per_page),
     },
     categories: (categoriesResult.results ?? []).map(toCategory),
     topProducts: (topsResult.results ?? []).map(toPublicProduct),
@@ -131,13 +137,24 @@ const SORTS: Record<string, string> = {
 
 publicRoutes.get('/products', async (c) => {
   const page = Math.max(1, Number(c.req.query('page') ?? 1) || 1)
-  const limit = Math.min(
-    48,
-    Math.max(1, Number(c.req.query('limit') ?? 24) || 24),
-  )
+  const rawLimit = c.req.query('limit')
+  let limit: number
+  if (rawLimit !== undefined && rawLimit !== '') {
+    limit = Math.min(
+      MAX_PRODUCTS_PER_PAGE,
+      Math.max(1, Math.trunc(Number(rawLimit)) || 24),
+    )
+  } else {
+    const settingRow = await c.env.DB.prepare(
+      "SELECT value FROM settings WHERE key = 'products_per_page'",
+    ).first<{ value: string }>()
+    limit = normalizeProductsPerPage(settingRow?.value)
+  }
   const q = (c.req.query('q') ?? '').trim()
   const sort = SORTS[c.req.query('sort') ?? 'popular'] ? (c.req.query('sort') ?? 'popular') : 'popular'
   const categorySlug = c.req.query('category')
+  const excludeTopParam = c.req.query('excludeTop')
+  const excludeTop = excludeTopParam === '1' || excludeTopParam === 'true'
 
   let category: CategoryRow | null = null
   let categoryIds: number[] = []
@@ -181,6 +198,9 @@ publicRoutes.get('/products', async (c) => {
   const conditions = ["p.status = 'published'"]
   const values: unknown[] = []
 
+  if (excludeTop) {
+    conditions.push('p.is_top = 0')
+  }
   if (q) {
     values.push(`%${q}%`)
     conditions.push(`p.title LIKE ?${values.length}`)

@@ -19,6 +19,12 @@ import {
   generateTheme,
   normalizeHexColor,
 } from '../../../shared/theme'
+import {
+  DEFAULT_PRODUCTS_PER_PAGE,
+  MAX_PRODUCTS_PER_PAGE,
+  MIN_PRODUCTS_PER_PAGE,
+  normalizeProductsPerPage,
+} from '../../../shared/pagination'
 import type { AdminSettings } from '../../../shared/types'
 
 export default function Settings() {
@@ -37,6 +43,9 @@ export default function Settings() {
   const [themeColor, setThemeColor] = useState(DEFAULT_THEME_COLOR)
   const [themeColorText, setThemeColorText] = useState(DEFAULT_THEME_COLOR)
   const [currency, setCurrencyState] = useState<CurrencyCode>('IDR')
+  const [productsPerPage, setProductsPerPage] = useState(
+    String(DEFAULT_PRODUCTS_PER_PAGE),
+  )
 
   const [saving, setSaving] = useState(false)
   const [notice, setNotice] = useState<{
@@ -70,6 +79,7 @@ export default function Settings() {
         setThemeColor(value.themeColor)
         setThemeColorText(value.themeColor)
         setCurrencyState(normalizeCurrency(value.currency))
+        setProductsPerPage(String(normalizeProductsPerPage(value.productsPerPage)))
       })
       .catch((err) => {
         if (active) {
@@ -101,6 +111,19 @@ export default function Settings() {
       return
     }
 
+    const parsedPerPage = Number(productsPerPage)
+    if (
+      !Number.isInteger(parsedPerPage) ||
+      parsedPerPage < MIN_PRODUCTS_PER_PAGE ||
+      parsedPerPage > MAX_PRODUCTS_PER_PAGE
+    ) {
+      setNotice({
+        tone: 'error',
+        text: t('Jumlah produk per muatan harus antara 4 sampai 48.'),
+      })
+      return
+    }
+
     setSaving(true)
     try {
       await api.updateSettings({
@@ -113,6 +136,7 @@ export default function Settings() {
         language: formLanguage,
         themeColor: normalizedTheme,
         currency,
+        productsPerPage: parsedPerPage,
         ...(shopeeAppSecret ? { shopeeAppSecret } : {}),
         ...(clearShopeeCredentials ? { clearShopeeCredentials: true } : {}),
       })
@@ -314,6 +338,27 @@ export default function Settings() {
         </select>
         <p className="text-muted mt-1 mb-4 text-xs">
           {t('Tanpa konversi kurs. Pilih mata uang yang sesuai dengan harga produk Anda.')}
+        </p>
+
+        <label
+          className="block text-sm font-semibold"
+          htmlFor="productsPerPage"
+        >
+          {t('Jumlah produk per muatan')}
+        </label>
+        <input
+          id="productsPerPage"
+          type="number"
+          inputMode="numeric"
+          min={MIN_PRODUCTS_PER_PAGE}
+          max={MAX_PRODUCTS_PER_PAGE}
+          step={1}
+          value={productsPerPage}
+          onChange={(event) => setProductsPerPage(event.target.value)}
+          className="border-line focus:border-primary mt-1 min-h-11 w-full rounded-lg border px-3 text-sm outline-none sm:w-40"
+        />
+        <p className="text-muted mt-1 mb-4 text-xs">
+          {t('Jumlah produk yang dimuat setiap kali halaman publik digulir (4–48).')}
         </p>
 
         <label className="block text-sm font-semibold" htmlFor="siteName">

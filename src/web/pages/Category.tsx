@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../lib/api'
 import { useLanguage } from '../lib/language'
+import { useProductLayout } from '../lib/productLayout'
+import { useSite } from '../components/PublicLayout'
+import InfiniteScrollTrigger from '../components/InfiniteScrollTrigger'
+import LayoutToggle from '../components/LayoutToggle'
 import ProductGrid from '../components/ProductGrid'
 import { ProductGridSkeleton } from '../components/Skeleton'
 import type { PublicProduct, PublicProductList } from '../../shared/types'
@@ -13,34 +17,47 @@ const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Harga tertinggi' },
 ]
 
-const PAGE_SIZE = 24
-
 export default function CategoryPage() {
   const { slug = '' } = useParams()
   const [params, setParams] = useSearchParams()
   const { t } = useLanguage()
+  const { settings } = useSite()
+  const { layout, setLayout } = useProductLayout()
   const sort = params.get('sort') ?? 'popular'
+  const limit = settings.productsPerPage
 
   const [data, setData] = useState<PublicProductList | null>(null)
   const [products, setProducts] = useState<PublicProduct[]>([])
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadMoreError, setLoadMoreError] = useState<string | null>(null)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
-    let active = true
+    const requestId = ++requestIdRef.current
     setLoading(true)
     setError(null)
+    setLoadMoreError(null)
     setProducts([])
+    setPage(1)
+    setHasMore(false)
+
     api
-      .publicProducts({ category: slug, sort, page: 1, limit: PAGE_SIZE })
+      .publicProducts({ category: slug, sort, page: 1, limit })
       .then((result) => {
-        if (!active) return
+        if (requestIdRef.current !== requestId) return
         setData(result)
         setProducts(result.products)
+        setPage(1)
+        setHasMore(
+          result.products.length > 0 && result.products.length < result.total,
+        )
       })
       .catch((err) => {
-        if (!active) return
+        if (requestIdRef.current !== requestId) return
         setError(
           err instanceof ApiError
             ? err.message
@@ -48,32 +65,45 @@ export default function CategoryPage() {
         )
       })
       .finally(() => {
-        if (active) setLoading(false)
+        if (requestIdRef.current === requestId) setLoading(false)
       })
-    return () => {
-      active = false
-    }
-  }, [slug, sort])
+  }, [slug, sort, limit, t])
 
   async function loadMore() {
-    if (!data || loadingMore) return
-    const nextPage = Math.floor(products.length / PAGE_SIZE) + 1
+    if (!data || loading || loadingMore || !hasMore) return
+    const requestId = requestIdRef.current
+    const nextPage = page + 1
     setLoadingMore(true)
+    setLoadMoreError(null)
     try {
       const result = await api.publicProducts({
         category: slug,
         sort,
         page: nextPage,
-        limit: PAGE_SIZE,
+        limit,
       })
-      setProducts((items) => [...items, ...result.products])
+      if (requestIdRef.current !== requestId) return
+      const seen = new Set(products.map((item) => item.id))
+      const nextLength =
+        products.length +
+        result.products.filter((item) => !seen.has(item.id)).length
+      setProducts((items) => {
+        const existing = new Set(items.map((item) => item.id))
+        return [
+          ...items,
+          ...result.products.filter((item) => !existing.has(item.id)),
+        ]
+      })
       setData(result)
+      setPage(nextPage)
+      setHasMore(result.products.length > 0 && nextLength < result.total)
     } catch (err) {
-      setError(
+      if (requestIdRef.current !== requestId) return
+      setLoadMoreError(
         err instanceof ApiError ? err.message : t('Gagal memuat produk lainnya.'),
       )
     } finally {
-      setLoadingMore(false)
+      if (requestIdRef.current === requestId) setLoadingMore(false)
     }
   }
 
@@ -131,20 +161,23 @@ export default function CategoryPage() {
             {t('{count} produk tersedia', { count: data?.total ?? 0 })}
           </p>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted font-semibold">{t('Urutkan')}</span>
-          <select
-            value={sort}
-            onChange={(event) => changeSort(event.target.value)}
-            className="border-line min-h-11 rounded-lg border bg-card px-3 text-sm font-medium"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {t(option.label)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-muted font-semibold">{t('Urutkan')}</span>
+            <select
+              value={sort}
+              onChange={(event) => changeSort(event.target.value)}
+              className="border-line min-h-11 rounded-lg border bg-card px-3 text-sm font-medium"
+            >
+              {SORT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {t(option.label)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <LayoutToggle layout={layout} onChange={setLayout} />
+        </div>
       </div>
 
       {showChips && (
@@ -179,26 +212,26 @@ export default function CategoryPage() {
 
       <div className="mt-5">
         {loading ? (
-          <ProductGridSkeleton count={8} />
+          <ProductGridSkeleton count={Math.min(limit, 8)} layout={layout} />
         ) : (
           <ProductGrid
             products={products}
+            layout={layout}
             emptyTitle="Belum ada produk di kategori ini."
             emptyDescription="Silakan jelajahi kategori lain atau kembali lagi nanti."
           />
         )}
       </div>
 
-      {!loading && data && products.length < data.total && (
-        <div className="mt-6 text-center">
-          <button
-            onClick={loadMore}
-            disabled={loadingMore}
-            className="border-line min-h-11 rounded-lg border bg-card px-5 text-sm font-semibold hover:bg-page disabled:opacity-60"
-          >
-            {loadingMore ? t('Memuat…') : t('Muat lebih banyak')}
-          </button>
-        </div>
+      {!loading && (
+        <InfiniteScrollTrigger
+          hasMore={hasMore}
+          loading={loadingMore}
+          error={loadMoreError}
+          layout={layout}
+          skeletonCount={limit}
+          onLoadMore={loadMore}
+        />
       )}
     </div>
   )

@@ -27,6 +27,11 @@ import {
 } from '../../shared/version'
 import { DEFAULT_THEME_COLOR, normalizeHexColor } from '../../shared/theme'
 import {
+  MAX_PRODUCTS_PER_PAGE,
+  MIN_PRODUCTS_PER_PAGE,
+  normalizeProductsPerPage,
+} from '../../shared/pagination'
+import {
   DEFAULT_CURRENCY,
   isSupportedCurrency,
   normalizeCurrency,
@@ -689,6 +694,18 @@ const settingsInput = z.object({
   language: z.enum(['en', 'id']).optional(),
   themeColor: z.string().trim().max(20, 'Warna tidak valid.').optional(),
   currency: z.string().trim().max(10).optional(),
+  productsPerPage: z
+    .number()
+    .int('Jumlah produk per muatan harus antara 4 sampai 48.')
+    .min(
+      MIN_PRODUCTS_PER_PAGE,
+      'Jumlah produk per muatan harus antara 4 sampai 48.',
+    )
+    .max(
+      MAX_PRODUCTS_PER_PAGE,
+      'Jumlah produk per muatan harus antara 4 sampai 48.',
+    )
+    .optional(),
 })
 
 const SETTING_KEYS: Record<string, string> = {
@@ -720,6 +737,9 @@ adminRoutes.get('/settings', async (c) => {
         ) ?? DEFAULT_THEME_COLOR,
       currency: normalizeCurrency(
         (await getSetting(c.env.DB, 'currency')) ?? DEFAULT_CURRENCY,
+      ),
+      productsPerPage: normalizeProductsPerPage(
+        await getSetting(c.env.DB, 'products_per_page'),
       ),
     },
   })
@@ -761,6 +781,14 @@ adminRoutes.patch('/settings', async (c) => {
 
   if (currencyValue) {
     await setSetting(c.env.DB, 'currency', currencyValue)
+  }
+
+  if (input.productsPerPage !== undefined) {
+    await setSetting(
+      c.env.DB,
+      'products_per_page',
+      String(input.productsPerPage),
+    )
   }
 
   if (input.clearShopeeCredentials) {

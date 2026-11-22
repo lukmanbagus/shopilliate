@@ -194,6 +194,11 @@ const EN: Record<string, string> = {
   'Pilihan terbaik, dikurasi untuk Anda': 'The best picks, curated for you',
   'Deskripsi hero': 'Hero description',
   'Pernyataan afiliasi (footer)': 'Affiliate disclosure (footer)',
+  'Jumlah produk per muatan': 'Products per load',
+  'Jumlah produk yang dimuat setiap kali halaman publik digulir (4–48).':
+    'Number of products loaded each time a public page scrolls (4–48).',
+  'Jumlah produk per muatan harus antara 4 sampai 48.':
+    'Products per load must be between 4 and 48.',
   'Shopee Affiliate API (opsional)': 'Shopee Affiliate API (optional)',
   'Isi App ID dan Secret dari akun Shopee Affiliate Anda agar pengambilan data memakai jalur resmi. Detail kredensial tidak pernah dikirim kembali ke browser.':
     'Enter the App ID and Secret from your Shopee Affiliate account so data fetching uses the official route. Credential details are never sent back to the browser.',
@@ -234,6 +239,10 @@ const EN: Record<string, string> = {
   'Pilihan Teratas': 'Top Picks',
   'Produk andalan yang paling sering dipilih.':
     'Favorite products chosen most often.',
+  'Produk Lainnya': 'Other Products',
+  'Jelajahi koleksi produk pilihan lainnya.':
+    'Browse more curated products.',
+  'Memuat produk lainnya…': 'Loading more products…',
   'Belum ada produk bertanda TOP.': 'No TOP products yet.',
   'Admin dapat menandai produk sebagai TOP dari panel admin.':
     'Admins can mark products as TOP from the admin panel.',

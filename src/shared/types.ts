@@ -58,6 +58,7 @@ export interface PublicSettings {
   language: 'en' | 'id'
   themeColor: string
   currency: string
+  productsPerPage: number
 }
 
 export interface PublicHomeData {
@@ -100,6 +101,7 @@ export interface AdminSettings {
   language: 'en' | 'id'
   themeColor: string
   currency: string
+  productsPerPage: number
 }
 
 export interface UpdateInfo {

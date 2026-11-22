@@ -7,6 +7,7 @@ import {
 import { Outlet } from 'react-router-dom'
 import { api, ApiError } from '../lib/api'
 import { useLanguage } from '../lib/language'
+import { ProductLayoutProvider } from '../lib/productLayout'
 import type { PublicHomeData } from '../../shared/types'
 import SiteHeader from './SiteHeader'
 import { PublicPageSkeleton } from './Skeleton'
@@ -78,23 +79,25 @@ export default function PublicLayout() {
 
   return (
     <SiteContext.Provider value={home}>
-      <div className="flex min-h-screen flex-col">
-        {settings.bannerText && (
-          <p className="bg-primary-soft text-[11px] font-semibold tracking-wide text-primary-ink">
-            <span className="mx-auto block max-w-6xl px-4 py-1.5 text-center">
-              {settings.bannerText}
-            </span>
-          </p>
-        )}
-        <SiteHeader siteName={settings.siteName} categories={categories} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-12">
-          <Outlet />
-        </main>
-        <SiteFooter
-          siteName={settings.siteName}
-          disclosure={settings.affiliateDisclosure}
-        />
-      </div>
+      <ProductLayoutProvider>
+        <div className="flex min-h-screen flex-col">
+          {settings.bannerText && (
+            <p className="bg-primary-soft text-[11px] font-semibold tracking-wide text-primary-ink">
+              <span className="mx-auto block max-w-6xl px-4 py-1.5 text-center">
+                {settings.bannerText}
+              </span>
+            </p>
+          )}
+          <SiteHeader siteName={settings.siteName} categories={categories} />
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-12">
+            <Outlet />
+          </main>
+          <SiteFooter
+            siteName={settings.siteName}
+            disclosure={settings.affiliateDisclosure}
+          />
+        </div>
+      </ProductLayoutProvider>
     </SiteContext.Provider>
   )
 }
